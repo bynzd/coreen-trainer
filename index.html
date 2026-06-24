@@ -182,12 +182,21 @@
           <span class="m-title">3 · Rappel phonétique</span>
           <span class="m-desc">Le sens s'affiche en français, tu tapes la prononciation (ex. « hana »). Validation souple.</span>
         </div>
+        <div class="mode-btn" data-mode="leitner">
+          <span class="m-title">4 · Révision du jour</span>
+          <span class="m-desc">Travaille uniquement les mots programmés pour aujourd'hui (Leitner).</span>
+        </div>
       </div>
       <label class="audio-toggle">
         <input type="checkbox" id="audioToggle" checked>
         <span>🔊 Prononcer les mots coréens à voix haute (modes 1 et 2)</span>
       </label>
       <div class="voice-notice" id="voiceNotice" style="display:none"></div>
+    </div>
+
+    <div class="card" id="leitnerCard" style="display:block; margin-top:10px">
+      <h2>Révisions du jour</h2>
+      <div id="leitnerSummary" style="font-size:.95rem; color:var(--ink-soft)"></div>
     </div>
 
     <div class="card">
@@ -579,47 +588,96 @@ function updateVoiceNotice(){
 }
 
 /* ===================== ÉTAT ===================== */
-let progress = {};          // { 'word-id': level 0-4 }       (répétition espacée)
-let streaks = {};           // { 'word-id': bonnes réponses consécutives }  (maîtrise/graduation)
+let progress = {};          // kept for backward compatibility: maps to box-1
+let streaks = {};           // { 'word-id': bonnes réponses consécutives }
 let storageOK = true;
 const MASTERY_STREAK = 10;
 
 let session = null;         // objet de session en cours
 let builder = { cho:null, jung:null, jong:'Ø' };
 
-/* ===================== STOCKAGE ===================== */
+// Leitner-specific state
+const LEITNER_INTERVALS = [1,2,4,8,16]; // days for boxes 1..5
+let leitner = {};           // { 'word-id': { box:1-5, next: 'YYYY-MM-DD' } }
+let lastReviewed = {};      // { 'word-id': 'YYYY-MM-DD' }
+
+/* ===================== STOCKAGE & MIGRATION ===================== */
+// storage shim: prefer existing `window.storage` if provided, else use localStorage
+if(!window.storage || !window.storage.get){
+  window.storage = {
+    get: async (k)=>{ const v = localStorage.getItem(k); return v===null?null:{value:v}; },
+    set: async (k,v)=>{ localStorage.setItem(k,v); return {ok:true}; },
+    delete: async (k)=>{ localStorage.removeItem(k); return {ok:true}; }
+  };
+}
+
+function todayStr(offsetDays=0){ const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+offsetDays); return d.toISOString().slice(0,10); }
+
+async function loadLeitner(){
+  try{
+    const r = await window.storage.get('vocab-leitner');
+    if(r && r.value) leitner = JSON.parse(r.value);
+  }catch(e){}
+  try{
+    const r2 = await window.storage.get('vocab-leitner-reviewed');
+    if(r2 && r2.value) lastReviewed = JSON.parse(r2.value);
+  }catch(e){}
+}
+async function saveLeitner(){
+  try{ await window.storage.set('vocab-leitner', JSON.stringify(leitner)); }catch(e){ storageOK=false; }
+}
+async function saveLastReviewed(){
+  try{ await window.storage.set('vocab-leitner-reviewed', JSON.stringify(lastReviewed)); }catch(e){ storageOK=false; }
+}
+
 async function loadProgress(){
   try{
     const res = await window.storage.get('vocab-progress');
     if(res && res.value){ progress = JSON.parse(res.value); }
-  }catch(e){ /* pas encore de données, ou stockage indisponible */ }
+  }catch(e){ }
   try{
     const res2 = await window.storage.get('vocab-streaks');
     if(res2 && res2.value){ streaks = JSON.parse(res2.value); }
-  }catch(e){ /* pas encore de données, ou stockage indisponible */ }
+  }catch(e){ }
+  await loadLeitner();
+  // Migration: if no leitner data, create it from existing state
+  if(!leitner || Object.keys(leitner).length===0){
+    const today = todayStr();
+    VOCAB.forEach(w=>{
+      const graduated = (streaks[w.id]||0) >= MASTERY_STREAK;
+      const box = graduated ? 4 : 1; // graduated start in box 4, others in box 1
+      leitner[w.id] = { box: box, next: today };
+      // keep progress mapping for backward compatibility
+      progress[w.id] = Math.max(0, box-1);
+    });
+    await saveLeitner();
+  }
 }
+
 async function saveProgress(){
-  try{
-    const res = await window.storage.set('vocab-progress', JSON.stringify(progress));
-    if(!res) storageOK = false;
-  }catch(e){ storageOK = false; }
+  try{ await window.storage.set('vocab-progress', JSON.stringify(progress)); }catch(e){ storageOK=false; }
 }
 async function saveStreaks(){
-  try{
-    const res = await window.storage.set('vocab-streaks', JSON.stringify(streaks));
-    if(!res) storageOK = false;
-  }catch(e){ storageOK = false; }
+  try{ await window.storage.set('vocab-streaks', JSON.stringify(streaks)); }catch(e){ storageOK=false; }
 }
 async function resetProgress(){
   progress = {};
   streaks = {};
+  leitner = {};
+  lastReviewed = {};
   try{ await window.storage.delete('vocab-progress'); }catch(e){}
   try{ await window.storage.delete('vocab-streaks'); }catch(e){}
+  try{ await window.storage.delete('vocab-leitner'); }catch(e){}
+  try{ await window.storage.delete('vocab-leitner-reviewed'); }catch(e){}
   renderOverview();
 }
 
 /* ===================== RENDU HOME ===================== */
-function levelOf(word){ return progress[word.id] ?? 0; }
+function levelOf(word){
+  // derive old 0-4 level from Leitner box (1-5)
+  const box = (leitner[word.id] && leitner[word.id].box) || (progress[word.id]!==undefined ? (progress[word.id]+1) : 1);
+  return Math.max(0, Math.min(4, box-1));
+}
 function streakOf(word){ return streaks[word.id] ?? 0; }
 function isGraduated(word){ return streakOf(word) >= MASTERY_STREAK; }
 // Catégorie effective : un mot maîtrisé (10 bonnes réponses de suite) bascule
@@ -661,6 +719,15 @@ function renderOverview(){
     document.getElementById('overviewCard').appendChild(badge);
   }
   badge.textContent = '🏆 ' + graduatedCount + ' mot' + (graduatedCount===1?'':'s') + ' maîtrisé' + (graduatedCount===1?'':'s') + ' (10 bonnes réponses de suite)';
+  // Leitner summary: nombre de mots à réviser aujourd'hui + nombre déjà faits
+  const today = todayStr();
+  const totalToday = VOCAB.filter(w=>leitner[w.id] && leitner[w.id].next <= today).length;
+  const doneToday = Object.keys(lastReviewed).filter(id=> lastReviewed[id] === today).length;
+  const sEl = document.getElementById('leitnerSummary');
+  if(sEl){
+    if(totalToday===0) sEl.textContent = 'Révisions du jour : 0 — Rien à faire aujourd\'hui';
+    else sEl.textContent = `Révisions du jour : ${totalToday} — ${doneToday} faits`;
+  }
 }
 
 function renderCategories(){
@@ -677,6 +744,7 @@ function renderCategories(){
 }
 
 let selectedMode = 'recognition';
+let selectedLeitner = false;
 let selectedLen = 20;
 
 function setupHomeInteractions(){
@@ -684,7 +752,13 @@ function setupHomeInteractions(){
     btn.addEventListener('click', ()=>{
       document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));
       btn.classList.add('selected');
-      selectedMode = btn.dataset.mode;
+      // If user clicks the Leitner control, toggle the Leitner session flag
+      if(btn.dataset.mode === 'leitner'){
+        selectedLeitner = true;
+      } else {
+        selectedLeitner = false;
+        selectedMode = btn.dataset.mode;
+      }
     });
   });
   document.querySelectorAll('.len-btn').forEach(btn=>{
@@ -769,8 +843,21 @@ function startSession(){
     return;
   }
   errEl.textContent='';
-  const pool = VOCAB.filter(w=>cats.includes(effectiveCategory(w)));
-  const len = Math.min(selectedLen, pool.length*3 || selectedLen);
+  let pool = VOCAB.filter(w=>cats.includes(effectiveCategory(w)));
+  // If Leitner daily-review selected, override pool to only words due today
+  if(selectedLeitner){
+    const today = todayStr();
+    pool = pool.filter(w => leitner[w.id] && leitner[w.id].next <= today);
+    if(pool.length === 0){
+      showPractice();
+      const body = document.getElementById('practiceBody');
+      body.innerHTML = `<div class="card end-card"><div class="big">Révisions du jour terminées ✅</div><div class="sub">Tu n'as rien à réviser aujourd'hui.</div><button class="start-btn" id="backHomeBtn">Retour à l'accueil</button></div>`;
+      document.getElementById('backHomeBtn').addEventListener('click', ()=>{ showHome(); selectedLeitner=false; });
+      document.getElementById('pCounter').textContent = 'Terminé';
+      return;
+    }
+  }
+  const len = selectedLeitner ? pool.length : Math.min(selectedLen, pool.length*3 || selectedLen);
   session = {
     mode: selectedMode,
     queue: buildQueue(pool, len),
@@ -824,12 +911,29 @@ function shuffle(arr){
 }
 
 function onAnswer(word, isCorrect){
-  const lvl = levelOf(word);
-  progress[word.id] = isCorrect ? Math.min(4, lvl+1) : 0;
+  // Update streaks (used for mastery detection)
   streaks[word.id] = isCorrect ? streakOf(word)+1 : 0;
+
+  // Update Leitner box and next review date
+  const prevBox = (leitner[word.id] && leitner[word.id].box) || ((progress[word.id]!==undefined) ? (progress[word.id]+1) : 1);
+  const newBox = isCorrect ? Math.min(5, prevBox+1) : 1;
+  leitner[word.id] = leitner[word.id] || {};
+  leitner[word.id].box = newBox;
+  if(newBox === 1){
+    leitner[word.id].next = todayStr();
+  } else {
+    leitner[word.id].next = todayStr(LEITNER_INTERVALS[newBox-1]);
+  }
+  lastReviewed[word.id] = todayStr();
+
+  // Keep legacy progress mapping for UI compatibility (0-4)
+  progress[word.id] = Math.max(0, Math.min(4, newBox-1));
+
   if(isCorrect) session.ok++; else session.ko++;
   saveProgress();
   saveStreaks();
+  saveLeitner();
+  saveLastReviewed();
 }
 
 function renderRecognition(word, body){
