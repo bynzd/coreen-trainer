@@ -641,6 +641,24 @@ async function saveLastReviewed(){
   try{ await window.storage.set('vocab-leitner-reviewed', JSON.stringify(lastReviewed)); }catch(e){ storageOK=false; }
 }
 
+// user-added vocab persistence (optional)
+let userVocab = [];
+async function loadUserVocab(){
+  try{
+    const r = await window.storage.get('vocab-user');
+    if(r && r.value) userVocab = JSON.parse(r.value);
+    // merge into VOCAB while avoiding duplicates
+    if(Array.isArray(userVocab)){
+      userVocab.forEach(u=>{
+        if(!VOCAB.find(w=>w.id===u.id)) VOCAB.push(u);
+      });
+    }
+  }catch(e){}
+}
+async function saveUserVocab(){
+  try{ await window.storage.set('vocab-user', JSON.stringify(userVocab)); }catch(e){ storageOK=false; }
+}
+
 async function loadProgress(){
   try{
     const res = await window.storage.get('vocab-progress');
@@ -1151,11 +1169,53 @@ function renderList(cat){
 
 /* ===================== INIT ===================== */
 async function init(){
+  // load any user-added words first so migration includes them
+  await loadUserVocab();
   await loadProgress();
   renderCategories();
   setupHomeInteractions();
   renderOverview();
   initVoices();
+
+  // Autotest walkthrough when opened with ?autotest=1
+  try{
+    const params = new URL(location.href).searchParams;
+    if(params.get('autotest') === '1'){
+      const stage = localStorage.getItem('autotest-stage');
+      const testId = localStorage.getItem('autotest-id') || ('__AUTOTEST_'+Date.now());
+      if(!stage){
+        // create a test word and persist it
+        const testWord = { id: testId, kr: '테스트', fr: 'test (autotest)', cat: 'nouveaux' };
+        if(!VOCAB.find(w=>w.id===testWord.id)){
+          VOCAB.push(testWord);
+          userVocab.push(testWord);
+          await saveUserVocab();
+        }
+        // ensure migration/leitner contains it
+        if(!leitner[testWord.id]){
+          leitner[testWord.id] = { box:1, next: todayStr() };
+          await saveLeitner();
+        }
+        // simulate a correct answer
+        onAnswer(testWord, true);
+        // mark stage and reload to verify persistence
+        localStorage.setItem('autotest-stage','after-answer');
+        localStorage.setItem('autotest-id', testWord.id);
+        setTimeout(()=>location.reload(), 600);
+      } else if(stage === 'after-answer'){
+        const tid = localStorage.getItem('autotest-id');
+        const info = leitner[tid] || null;
+        const sEl = document.getElementById('leitnerSummary');
+        if(sEl){
+          if(info) sEl.textContent = `Autotest: mot ${tid} — boîte ${info.box}, prochaine ${info.next}`;
+          else sEl.textContent = 'Autotest: aucune info Leitner trouvée.';
+        }
+        // cleanup autotest markers
+        localStorage.removeItem('autotest-stage');
+        localStorage.removeItem('autotest-id');
+      }
+    }
+  }catch(e){ console.error(e); }
 }
 init();
 
