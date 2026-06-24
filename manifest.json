@@ -1,0 +1,25 @@
+{
+  "name": "Coréen Trainer",
+  "short_name": "Coréen",
+  "description": "Révision du vocabulaire coréen avec système de répétition espacée",
+  "start_url": ".",
+  "scope": ".",
+  "display": "standalone",
+  "orientation": "portrait",
+  "theme_color": "#2B4C7E",
+  "background_color": "#1C3658",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
