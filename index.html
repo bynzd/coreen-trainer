@@ -182,10 +182,7 @@
           <span class="m-title">3 · Rappel phonétique</span>
           <span class="m-desc">Le sens s'affiche en français, tu tapes la prononciation (ex. « hana »). Validation souple.</span>
         </div>
-        <div class="mode-btn" data-mode="leitner">
-          <span class="m-title">4 · Révision du jour</span>
-          <span class="m-desc">Travaille uniquement les mots programmés pour aujourd'hui (Leitner).</span>
-        </div>
+        <!-- Leitner daily-review is a separate toggle, not a question-type mode -->
       </div>
       <label class="audio-toggle">
         <input type="checkbox" id="audioToggle" checked>
@@ -197,6 +194,13 @@
     <div class="card" id="leitnerCard" style="display:block; margin-top:10px">
       <h2>Révisions du jour</h2>
       <div id="leitnerSummary" style="font-size:.95rem; color:var(--ink-soft)"></div>
+    </div>
+
+    <div style="margin-top:10px">
+      <label class="audio-toggle" style="align-items:center">
+        <input type="checkbox" id="leitnerToggle">
+        <span>🔁 Révision du jour (Leitner) — travailler uniquement les mots programmés pour aujourd'hui</span>
+      </label>
     </div>
 
     <div class="card">
@@ -752,15 +756,14 @@ function setupHomeInteractions(){
     btn.addEventListener('click', ()=>{
       document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));
       btn.classList.add('selected');
-      // If user clicks the Leitner control, toggle the Leitner session flag
-      if(btn.dataset.mode === 'leitner'){
-        selectedLeitner = true;
-      } else {
-        selectedLeitner = false;
-        selectedMode = btn.dataset.mode;
-      }
+      selectedMode = btn.dataset.mode;
     });
   });
+  const lt = document.getElementById('leitnerToggle');
+  if(lt){
+    selectedLeitner = lt.checked;
+    lt.addEventListener('change', ()=>{ selectedLeitner = lt.checked; });
+  }
   document.querySelectorAll('.len-btn').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       document.querySelectorAll('.len-btn').forEach(b=>b.classList.remove('selected'));
@@ -836,18 +839,13 @@ function buildQueue(pool, len){
 }
 
 function startSession(){
-  const cats = getSelectedCategories();
   const errEl = document.getElementById('homeErr');
-  if(cats.length===0){
-    errEl.textContent = 'Choisis au moins une catégorie avant de commencer.';
-    return;
-  }
   errEl.textContent='';
-  let pool = VOCAB.filter(w=>cats.includes(effectiveCategory(w)));
-  // If Leitner daily-review selected, override pool to only words due today
+  let pool = [];
   if(selectedLeitner){
+    // ignore categories — pick all words due today
     const today = todayStr();
-    pool = pool.filter(w => leitner[w.id] && leitner[w.id].next <= today);
+    pool = VOCAB.filter(w => leitner[w.id] && leitner[w.id].next <= today);
     if(pool.length === 0){
       showPractice();
       const body = document.getElementById('practiceBody');
@@ -856,7 +854,12 @@ function startSession(){
       document.getElementById('pCounter').textContent = 'Terminé';
       return;
     }
+  } else {
+    const cats = getSelectedCategories();
+    if(cats.length===0){ errEl.textContent = 'Choisis au moins une catégorie avant de commencer.'; return; }
+    pool = VOCAB.filter(w=>cats.includes(effectiveCategory(w)));
   }
+  // If Leitner daily-review selected, override pool to only words due today
   const len = selectedLeitner ? pool.length : Math.min(selectedLen, pool.length*3 || selectedLen);
   session = {
     mode: selectedMode,
