@@ -1,0 +1,1051 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>한글 연습 — Révision vocabulaire coréen</title>
+<style>
+  :root{
+    --paper:#FAF6EE;
+    --paper-deep:#F1EADA;
+    --ink:#262420;
+    --ink-soft:#6B6458;
+    --stamp:#2B4C7E;
+    --stamp-deep:#1C3658;
+    --seal-green:#3B6E52;
+    --seal-green-bg:#E9F1EB;
+    --brush-red:#A8333F;
+    --brush-red-bg:#F7E9E9;
+    --line:#DDD3BE;
+    --radius:14px;
+    color-scheme: light;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; background:var(--paper); color:var(--ink);
+    font-family:-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    -webkit-tap-highlight-color:transparent;
+  }
+  .kr{ font-family:"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif; }
+  #app{ max-width:640px; margin:0 auto; padding:20px 16px 48px; }
+
+  header.top{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:18px; }
+  header.top h1{ font-size:1.05rem; font-weight:700; letter-spacing:.02em; margin:0; }
+  header.top h1 .kr{ font-size:1.3rem; color:var(--stamp-deep); margin-right:8px; }
+  header.top .tag{ font-size:.72rem; color:var(--ink-soft); }
+
+  .card{ background:var(--paper-deep); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:14px; }
+  .card h2{ font-size:.78rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin:0 0 12px; font-weight:700; }
+
+  .modes{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .mode-btn{ text-align:left; border:1.5px solid var(--line); background:var(--paper); border-radius:10px; padding:12px 12px 14px; cursor:pointer; transition:border-color .15s, transform .1s; }
+  .mode-btn:active{ transform:scale(.98); }
+  .mode-btn.selected{ border-color:var(--stamp); background:#EEF2F8; }
+  .mode-btn .m-title{ font-weight:700; font-size:.92rem; display:block; margin-bottom:3px; }
+  .mode-btn .m-desc{ font-size:.74rem; color:var(--ink-soft); line-height:1.35; }
+  .audio-toggle{ display:flex; align-items:center; gap:9px; margin-top:14px; font-size:.82rem; color:var(--ink); cursor:pointer; }
+  .audio-toggle input{ width:17px; height:17px; cursor:pointer; }
+  .voice-notice{ margin-top:10px; padding:9px 11px; border-radius:8px; background:#FFF7ED; border:1px solid #FED7AA; color:#9A3412; font-size:.78rem; line-height:1.4; }
+  .answer-input{ width:100%; box-sizing:border-box; font-size:1.15rem; padding:13px 14px; border:1.5px solid var(--line); border-radius:10px; background:var(--paper); color:var(--ink); margin-top:4px; font-family:inherit; }
+  .answer-input:focus{ outline:none; border-color:var(--stamp); }
+  .answer-hint{ font-size:.74rem; color:var(--ink-soft); margin-top:7px; }
+  .audio-btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; margin-top:12px; padding:8px 14px; border:1.5px solid var(--line); border-radius:9px; background:var(--paper); color:var(--ink); font-size:.85rem; cursor:pointer; font-family:inherit; }
+  .audio-btn:active{ transform:scale(.97); }
+  .list-btn{ width:100%; margin-top:10px; padding:13px; border:1.5px solid var(--line); border-radius:11px; background:var(--paper); color:var(--ink); font-size:.95rem; font-family:inherit; cursor:pointer; }
+  .list-btn:active{ transform:scale(.99); }
+  .list-filter{ display:flex; flex-wrap:wrap; gap:7px; }
+  .lf-chip{ padding:7px 12px; border:1.4px solid var(--line); border-radius:999px; background:var(--paper); color:var(--ink-soft); font-size:.8rem; font-family:inherit; cursor:pointer; }
+  .lf-chip.active{ border-color:var(--stamp); background:var(--stamp); color:#fff; }
+  .vocab-table{ width:100%; border-collapse:collapse; margin-top:4px; }
+  .vocab-table th{ text-align:left; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-soft); padding:8px 10px; border-bottom:1.5px solid var(--line); }
+  .vocab-table td{ padding:9px 10px; border-bottom:1px solid var(--line); font-size:.92rem; vertical-align:middle; }
+  .vocab-table tr:last-child td{ border-bottom:none; }
+  .vt-kr{ font-size:1.1rem; }
+  .vt-roman{ color:var(--ink-soft); font-size:.85rem; }
+  .vt-spk{ border:none; background:transparent; cursor:pointer; font-size:1rem; padding:2px 6px; border-radius:6px; }
+  .vt-spk:active{ transform:scale(.9); }
+  .vt-cat-head{ font-size:.78rem; font-weight:700; color:var(--stamp); padding:14px 10px 4px; }
+
+  .cats{ display:flex; flex-direction:column; gap:8px; }
+  .cat-row{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; background:var(--paper); border:1px solid var(--line); cursor:pointer; }
+  .cat-row input{ width:18px; height:18px; accent-color:var(--stamp); flex-shrink:0; }
+  .cat-row .cname{ font-size:.88rem; font-weight:600; flex:1; }
+  .cat-row .ccount{ font-size:.74rem; color:var(--ink-soft); }
+
+  .lenrow{ display:flex; gap:8px; }
+  .len-btn{ flex:1; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); border-radius:8px; padding:9px; font-size:.85rem; font-weight:600; cursor:pointer; }
+  .len-btn.selected{ border-color:var(--stamp); background:#EEF2F8; color:var(--stamp-deep); }
+
+  .progress-overview{ display:flex; align-items:center; gap:12px; }
+  .ring{ width:54px; height:54px; border-radius:50%; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:.78rem; font-weight:700; background:conic-gradient(var(--seal-green) calc(var(--pct)*1%), var(--line) 0); }
+  .ring span{ background:var(--paper-deep); width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+  .lv-bars{ flex:1; display:flex; gap:3px; align-items:flex-end; height:30px; }
+  .lv-bar{ flex:1; background:var(--line); border-radius:3px 3px 0 0; position:relative; }
+  .lv-bar b{ position:absolute; inset:0; background:var(--stamp); border-radius:3px 3px 0 0; }
+
+  .err{ color:var(--brush-red); font-size:.82rem; margin-top:6px; min-height:1.2em; }
+
+  .start-btn{ width:100%; padding:15px; font-size:1rem; font-weight:700; border:none; border-radius:12px; background:var(--stamp); color:#fff; cursor:pointer; margin-top:6px; letter-spacing:.01em; }
+  .start-btn:active{ background:var(--stamp-deep); }
+
+  .reset-link{ display:block; text-align:center; font-size:.76rem; color:var(--ink-soft); margin-top:18px; text-decoration:underline; cursor:pointer; background:none; border:none; width:100%; }
+
+  /* practice screen */
+  #screen-practice{ display:none; }
+  .p-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; font-size:.8rem; color:var(--ink-soft); }
+  .p-top .quit{ color:var(--brush-red); cursor:pointer; font-weight:600; background:none; border:none; font-size:.8rem; }
+  .scoretag{ font-weight:700; }
+  .scoretag .ok{ color:var(--seal-green); }
+  .scoretag .ko{ color:var(--brush-red); }
+
+  .prompt-card{ background:var(--paper-deep); border:1px solid var(--line); border-radius:var(--radius); padding:28px 20px; text-align:center; margin-bottom:16px; }
+  .prompt-card .qlabel{ font-size:.74rem; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-soft); margin-bottom:10px; }
+  .prompt-card .qword{ font-size:2.1rem; font-weight:700; line-height:1.25; }
+  .prompt-card .qword.kr{ font-size:2.5rem; }
+
+  .options{ display:flex; flex-direction:column; gap:10px; }
+  .opt-btn{ text-align:left; padding:14px 16px; border:1.5px solid var(--line); border-radius:10px; background:var(--paper); color:var(--ink); font-size:.95rem; cursor:pointer; transition:border-color .12s; }
+  .opt-btn:active{ transform:scale(.99); }
+  .opt-btn.correct{ border-color:var(--seal-green); background:var(--seal-green-bg); }
+  .opt-btn.wrong{ border-color:var(--brush-red); background:var(--brush-red-bg); }
+  .opt-btn[disabled]{ cursor:default; }
+
+  /* syllable builder */
+  .builder-out{ background:var(--paper); border:1.5px dashed var(--line); border-radius:10px; padding:14px; min-height:64px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:700; letter-spacing:.03em; margin-bottom:12px; word-break:break-all; }
+  .builder-out .ghost{ color:var(--ink-soft); font-weight:400; font-size:1rem; }
+  .preview-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:14px; }
+  .preview-syll{ width:52px; height:52px; border:1.5px solid var(--stamp); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:700; background:#EEF2F8; color:var(--stamp-deep); }
+  .preview-arrow{ color:var(--ink-soft); font-size:1.1rem; }
+
+  .jamo-section{ margin-bottom:10px; }
+  .jamo-label{ font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin-bottom:5px; font-weight:700; }
+  .jamo-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(40px,1fr)); gap:5px; }
+  .jamo-btn{ aspect-ratio:1; border:1.3px solid var(--line); border-radius:7px; background:var(--paper); color:var(--ink); font-size:1.05rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; min-height:38px; }
+  .jamo-btn.active{ border-color:var(--stamp); background:#EEF2F8; color:var(--stamp-deep); }
+  .jamo-btn.none-final{ font-size:.7rem; }
+
+  .builder-actions{ display:flex; gap:8px; margin-top:12px; }
+  .bact{ flex:1; padding:11px 6px; border-radius:9px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-size:.82rem; font-weight:600; cursor:pointer; }
+  .bact.submit{ background:var(--stamp); color:#fff; border-color:var(--stamp); flex:1.4; }
+  .bact.danger{ color:var(--brush-red); }
+
+  .feedback{ margin-top:16px; padding:14px 16px; border-radius:10px; font-size:.9rem; display:none; }
+  .feedback.show{ display:block; }
+  .feedback.ok{ background:var(--seal-green-bg); color:var(--seal-green); border:1px solid var(--seal-green); }
+  .feedback.ko{ background:var(--brush-red-bg); color:var(--brush-red); border:1px solid var(--brush-red); }
+  .feedback .fans{ font-weight:700; }
+  .feedback .kr{ font-size:1.05rem; }
+
+  .next-btn{ width:100%; padding:14px; margin-top:12px; border:none; border-radius:10px; background:var(--ink); color:var(--paper); font-weight:700; font-size:.92rem; cursor:pointer; display:none; }
+  .next-btn.show{ display:block; }
+
+  .end-card{ text-align:center; padding:30px 18px; }
+  .end-card .big{ font-size:2.4rem; font-weight:800; margin-bottom:4px; }
+  .end-card .sub{ color:var(--ink-soft); font-size:.85rem; margin-bottom:20px; }
+
+  @media (prefers-reduced-motion: reduce){
+    *{ transition:none !important; animation:none !important; }
+  }
+  :focus-visible{ outline:2.5px solid var(--stamp); outline-offset:2px; }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ============ HOME SCREEN ============ -->
+  <div id="screen-home">
+    <header class="top">
+      <h1><span class="kr">한글</span>Révision vocabulaire</h1>
+      <span class="tag" id="totalTag"></span>
+    </header>
+
+    <div class="card" id="overviewCard">
+      <h2>Ta progression</h2>
+      <div class="progress-overview">
+        <div class="ring" id="ring" style="--pct:0"><span id="ringTxt">0%</span></div>
+        <div class="lv-bars" id="lvBars"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Mode de révision</h2>
+      <div class="modes">
+        <div class="mode-btn selected" data-mode="recognition">
+          <span class="m-title">1 · Reconnaissance (QCM)</span>
+          <span class="m-desc">Le mot s'affiche en hangul, tu choisis le sens parmi 4. Pour apprendre sans frustration.</span>
+        </div>
+        <div class="mode-btn" data-mode="meaning">
+          <span class="m-title">2 · Rappel du sens</span>
+          <span class="m-desc">Le mot s'affiche en hangul, tu tapes sa signification en français. Validation souple.</span>
+        </div>
+        <div class="mode-btn" data-mode="romanize">
+          <span class="m-title">3 · Rappel phonétique</span>
+          <span class="m-desc">Le sens s'affiche en français, tu tapes la prononciation (ex. « hana »). Validation souple.</span>
+        </div>
+      </div>
+      <label class="audio-toggle">
+        <input type="checkbox" id="audioToggle" checked>
+        <span>🔊 Prononcer les mots coréens à voix haute (modes 1 et 2)</span>
+      </label>
+      <div class="voice-notice" id="voiceNotice" style="display:none"></div>
+    </div>
+
+    <div class="card">
+      <h2>Catégories</h2>
+      <div class="cats" id="catList"></div>
+    </div>
+
+    <div class="card">
+      <h2>Longueur de la session</h2>
+      <div class="lenrow" id="lenRow">
+        <button class="len-btn" data-len="10">10 mots</button>
+        <button class="len-btn selected" data-len="20">20 mots</button>
+        <button class="len-btn" data-len="30">30 mots</button>
+      </div>
+    </div>
+
+    <div class="err" id="homeErr"></div>
+    <button class="start-btn" id="startBtn">Commencer la session</button>
+    <button class="list-btn" id="listBtn">📖 Voir toute la liste de vocabulaire</button>
+    <button class="reset-link" id="resetLink">Réinitialiser ma progression</button>
+  </div>
+
+  <!-- ============ LIST SCREEN ============ -->
+  <div id="screen-list" style="display:none">
+    <div class="p-top">
+      <span><b>Liste de vocabulaire</b></span>
+      <button class="quit" id="listBackBtn">← Retour</button>
+    </div>
+    <div class="card">
+      <div class="list-filter" id="listFilter"></div>
+    </div>
+    <div id="listBody"></div>
+  </div>
+
+  <!-- ============ PRACTICE SCREEN ============ -->
+  <div id="screen-practice">
+    <div class="p-top">
+      <span id="pCounter">Question 1/20</span>
+      <span class="scoretag"><span class="ok" id="pOk">0</span> · <span class="ko" id="pKo">0</span></span>
+      <button class="quit" id="quitBtn">Arrêter</button>
+    </div>
+
+    <div id="practiceBody"></div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+
+/* ===================== DONNÉES ===================== */
+const VOCAB = [
+  // sujets
+  {id:'저', kr:'저', fr:'je / moi (poli)', cat:'sujets'},
+  {id:'나', kr:'나', fr:'je / moi (familier)', cat:'sujets'},
+  {id:'우리', kr:'우리', fr:'nous', cat:'sujets'},
+  {id:'그', kr:'그', fr:'il / lui', cat:'sujets'},
+  {id:'그녀', kr:'그녀', fr:'elle', cat:'sujets'},
+  {id:'친구', kr:'친구', fr:"ami(e)", cat:'sujets'},
+  {id:'가족', kr:'가족', fr:'famille', cat:'sujets'},
+  {id:'사람', kr:'사람', fr:'personne', cat:'sujets'},
+  // verbes
+  {id:'먹어요', kr:'먹어요', fr:'manger', cat:'verbes'},
+  {id:'마셔요', kr:'마셔요', fr:'boire', cat:'verbes'},
+  {id:'가요', kr:'가요', fr:'aller', cat:'verbes'},
+  {id:'와요', kr:'와요', fr:'venir', cat:'verbes'},
+  {id:'봐요', kr:'봐요', fr:'voir', cat:'verbes'},
+  {id:'사요', kr:'사요', fr:'acheter', cat:'verbes'},
+  {id:'읽어요', kr:'읽어요', fr:'lire', cat:'verbes'},
+  {id:'써요', kr:'써요', fr:'écrire', cat:'verbes'},
+  {id:'자요', kr:'자요', fr:'dormir', cat:'verbes'},
+  {id:'일해요', kr:'일해요', fr:'travailler', cat:'verbes'},
+  {id:'공부해요', kr:'공부해요', fr:'étudier', cat:'verbes'},
+  {id:'좋아해요', kr:'좋아해요', fr:'aimer', cat:'verbes'},
+  {id:'알아요', kr:'알아요', fr:'savoir / connaître', cat:'verbes'},
+  {id:'있어요', kr:'있어요', fr:'avoir / exister', cat:'verbes'},
+  {id:'없어요', kr:'없어요', fr:'ne pas avoir', cat:'verbes'},
+  {id:'들어요', kr:'들어요', fr:'écouter', cat:'verbes'},
+  {id:'말해요', kr:'말해요', fr:'parler', cat:'verbes'},
+  // objets
+  {id:'밥', kr:'밥', fr:'riz / repas', cat:'objets'},
+  {id:'물', kr:'물', fr:'eau', cat:'objets'},
+  {id:'커피', kr:'커피', fr:'café', cat:'objets'},
+  {id:'음식', kr:'음식', fr:'nourriture', cat:'objets'},
+  {id:'책', kr:'책', fr:'livre', cat:'objets'},
+  {id:'핸드폰', kr:'핸드폰', fr:'téléphone portable', cat:'objets'},
+  {id:'돈', kr:'돈', fr:'argent', cat:'objets'},
+  {id:'시간', kr:'시간', fr:'temps / heure', cat:'objets'},
+  {id:'한국어', kr:'한국어', fr:'coréen (langue)', cat:'objets'},
+  {id:'영어', kr:'영어', fr:'anglais', cat:'objets'},
+  {id:'음악', kr:'음악', fr:'musique', cat:'objets'},
+  {id:'옷', kr:'옷', fr:'vêtements', cat:'objets'},
+  {id:'차', kr:'차', fr:'voiture / thé', cat:'objets'},
+  {id:'일_travail', kr:'일', fr:'travail', cat:'objets'},
+  // lieux
+  {id:'집', kr:'집', fr:'maison', cat:'lieux'},
+  {id:'학교', kr:'학교', fr:'école', cat:'lieux'},
+  {id:'공장', kr:'공장', fr:'usine', cat:'lieux'},
+  {id:'회사', kr:'회사', fr:'entreprise', cat:'lieux'},
+  {id:'식당', kr:'식당', fr:'restaurant', cat:'lieux'},
+  {id:'서울', kr:'서울', fr:'Séoul', cat:'lieux'},
+  {id:'병원', kr:'병원', fr:'hôpital', cat:'lieux'},
+  {id:'은행', kr:'은행', fr:'banque', cat:'lieux'},
+  {id:'편의점', kr:'편의점', fr:'supérette', cat:'lieux'},
+  {id:'화장실', kr:'화장실', fr:'toilettes', cat:'lieux'},
+  {id:'지하철', kr:'지하철', fr:'métro', cat:'lieux'},
+  {id:'공항', kr:'공항', fr:'aéroport', cat:'lieux'},
+  // adjectifs
+  {id:'좋아요', kr:'좋아요', fr:"c'est bien", cat:'adjectifs'},
+  {id:'싫어요', kr:'싫어요', fr:"je n'aime pas", cat:'adjectifs'},
+  {id:'많아요', kr:'많아요', fr:'il y en a beaucoup', cat:'adjectifs'},
+  {id:'커요', kr:'커요', fr:"c'est grand", cat:'adjectifs'},
+  {id:'작아요', kr:'작아요', fr:"c'est petit", cat:'adjectifs'},
+  {id:'비싸요', kr:'비싸요', fr:"c'est cher", cat:'adjectifs'},
+  {id:'싸요', kr:'싸요', fr:"c'est pas cher", cat:'adjectifs'},
+  {id:'중요해요', kr:'중요해요', fr:"c'est important", cat:'adjectifs'},
+  // interrogatifs
+  {id:'뭐', kr:'뭐', fr:'quoi', cat:'interrogatifs'},
+  {id:'어디', kr:'어디', fr:'où', cat:'interrogatifs'},
+  {id:'언제', kr:'언제', fr:'quand', cat:'interrogatifs'},
+  {id:'누구', kr:'누구', fr:'qui', cat:'interrogatifs'},
+  {id:'왜', kr:'왜', fr:'pourquoi', cat:'interrogatifs'},
+  {id:'어떻게', kr:'어떻게', fr:'comment', cat:'interrogatifs'},
+  {id:'얼마', kr:'얼마', fr:'combien (prix)', cat:'interrogatifs'},
+  {id:'몇', kr:'몇', fr:'combien (nombre)', cat:'interrogatifs'},
+  // temporel
+  {id:'오늘', kr:'오늘', fr:"aujourd'hui", cat:'temporel'},
+  {id:'어제', kr:'어제', fr:'hier', cat:'temporel'},
+  {id:'그저께', kr:'그저께', fr:'avant-hier', cat:'temporel'},
+  {id:'지난주', kr:'지난주', fr:'la semaine dernière', cat:'temporel'},
+  {id:'지난달', kr:'지난달', fr:'le mois dernier', cat:'temporel'},
+  {id:'아까', kr:'아까', fr:"tout à l'heure", cat:'temporel'},
+  {id:'오늘 아침', kr:'오늘 아침', fr:'ce matin', cat:'temporel'},
+
+  // ===== NOUVEAUX MOTS — COURS 7 À 12 =====
+  // nombres sino-coréens
+  {id:'공', kr:'공', fr:'zéro', cat:'nouveaux'},
+  {id:'일_un', kr:'일', fr:'un (1)', cat:'nouveaux'},
+  {id:'이', kr:'이', fr:'deux (2)', cat:'nouveaux'},
+  {id:'삼', kr:'삼', fr:'trois (3)', cat:'nouveaux'},
+  {id:'사', kr:'사', fr:'quatre (4)', cat:'nouveaux'},
+  {id:'오', kr:'오', fr:'cinq (5)', cat:'nouveaux'},
+  {id:'육', kr:'육', fr:'six (6)', cat:'nouveaux'},
+  {id:'칠', kr:'칠', fr:'sept (7)', cat:'nouveaux'},
+  {id:'팔', kr:'팔', fr:'huit (8)', cat:'nouveaux'},
+  {id:'구', kr:'구', fr:'neuf (9)', cat:'nouveaux'},
+  {id:'십', kr:'십', fr:'dix (10)', cat:'nouveaux'},
+  {id:'백', kr:'백', fr:'cent (100)', cat:'nouveaux'},
+  {id:'천', kr:'천', fr:'mille (1000)', cat:'nouveaux'},
+  {id:'만', kr:'만', fr:'dix mille (10 000)', cat:'nouveaux'},
+  // nombres natifs
+  {id:'하나', kr:'하나', fr:'un (1)', cat:'nouveaux'},
+  {id:'둘', kr:'둘', fr:'deux (2)', cat:'nouveaux'},
+  {id:'셋', kr:'셋', fr:'trois (3)', cat:'nouveaux'},
+  {id:'넷', kr:'넷', fr:'quatre (4)', cat:'nouveaux'},
+  {id:'다섯', kr:'다섯', fr:'cinq (5)', cat:'nouveaux'},
+  {id:'여섯', kr:'여섯', fr:'six (6)', cat:'nouveaux'},
+  {id:'일곱', kr:'일곱', fr:'sept (7)', cat:'nouveaux'},
+  {id:'여덟', kr:'여덟', fr:'huit (8)', cat:'nouveaux'},
+  {id:'아홉', kr:'아홉', fr:'neuf (9)', cat:'nouveaux'},
+  {id:'열', kr:'열', fr:'dix (10)', cat:'nouveaux'},
+  {id:'스물', kr:'스물', fr:'vingt (20)', cat:'nouveaux'},
+  {id:'서른', kr:'서른', fr:'trente (30)', cat:'nouveaux'},
+  {id:'마흔', kr:'마흔', fr:'quarante (40)', cat:'nouveaux'},
+  {id:'쉰', kr:'쉰', fr:'cinquante (50)', cat:'nouveaux'},
+  {id:'예순', kr:'예순', fr:'soixante (60)', cat:'nouveaux'},
+  {id:'일흔', kr:'일흔', fr:'soixante-dix (70)', cat:'nouveaux'},
+  {id:'여든', kr:'여든', fr:'quatre-vingts (80)', cat:'nouveaux'},
+  {id:'아흔', kr:'아흔', fr:'quatre-vingt-dix (90)', cat:'nouveaux'},
+  // heure et compteurs
+  {id:'시', kr:'시', fr:'heure (point dans le temps)', cat:'nouveaux'},
+  {id:'반', kr:'반', fr:'demi / et demie', cat:'nouveaux'},
+  {id:'개', kr:'개', fr:'objet (compteur générique)', cat:'nouveaux'},
+  {id:'명', kr:'명', fr:'personne (compteur poli)', cat:'nouveaux'},
+  {id:'살', kr:'살', fr:'âge (ans)', cat:'nouveaux'},
+  {id:'번', kr:'번', fr:'fois', cat:'nouveaux'},
+  {id:'잔', kr:'잔', fr:'verre / tasse', cat:'nouveaux'},
+  {id:'병', kr:'병', fr:'bouteille', cat:'nouveaux'},
+  {id:'장', kr:'장', fr:'feuille / billet', cat:'nouveaux'},
+  {id:'권', kr:'권', fr:'livre (compteur)', cat:'nouveaux'},
+  {id:'마리', kr:'마리', fr:'animal (compteur)', cat:'nouveaux'},
+  // jours
+  {id:'월요일', kr:'월요일', fr:'lundi', cat:'nouveaux'},
+  {id:'화요일', kr:'화요일', fr:'mardi', cat:'nouveaux'},
+  {id:'수요일', kr:'수요일', fr:'mercredi', cat:'nouveaux'},
+  {id:'목요일', kr:'목요일', fr:'jeudi', cat:'nouveaux'},
+  {id:'금요일', kr:'금요일', fr:'vendredi', cat:'nouveaux'},
+  {id:'토요일', kr:'토요일', fr:'samedi', cat:'nouveaux'},
+  {id:'일요일', kr:'일요일', fr:'dimanche', cat:'nouveaux'},
+  // date / anniversaire
+  {id:'생일', kr:'생일', fr:'anniversaire', cat:'nouveaux'},
+  {id:'오전', kr:'오전', fr:'matin (AM)', cat:'nouveaux'},
+  {id:'오후', kr:'오후', fr:'après-midi (PM)', cat:'nouveaux'},
+  // connecteurs
+  {id:'그리고', kr:'그리고', fr:'et / et puis', cat:'nouveaux'},
+  {id:'그래서', kr:'그래서', fr:'donc', cat:'nouveaux'},
+  {id:'그런데', kr:'그런데', fr:'mais / cependant', cat:'nouveaux'},
+  {id:'하지만', kr:'하지만', fr:'mais (fort)', cat:'nouveaux'},
+  // futur / souhait
+  {id:'계획', kr:'계획', fr:'plan', cat:'nouveaux'},
+  {id:'여행', kr:'여행', fr:'voyage', cat:'nouveaux'},
+  {id:'내일', kr:'내일', fr:'demain', cat:'nouveaux'},
+  {id:'다음주', kr:'다음주', fr:'la semaine prochaine', cat:'nouveaux'},
+  {id:'다음달', kr:'다음달', fr:'le mois prochain', cat:'nouveaux'},
+  // comparaison
+  {id:'더', kr:'더', fr:'plus', cat:'nouveaux'},
+  {id:'제일', kr:'제일', fr:'le plus (familier)', cat:'nouveaux'},
+  {id:'가장', kr:'가장', fr:'le plus (formel)', cat:'nouveaux'},
+  {id:'만큼', kr:'만큼', fr:'autant que', cat:'nouveaux'},
+
+  // ===== VOCABULAIRE COMPLÉMENTAIRE TOPIK — THÈMES VARIÉS =====
+  // famille
+  {id:'아버지', kr:'아버지', fr:'père', cat:'topik'},
+  {id:'어머니', kr:'어머니', fr:'mère', cat:'topik'},
+  {id:'형', kr:'형', fr:'frère aîné (dit par un homme)', cat:'topik'},
+  {id:'누나', kr:'누나', fr:'sœur aînée (dit par un homme)', cat:'topik'},
+  {id:'오빠', kr:'오빠', fr:'frère aîné (dit par une femme)', cat:'topik'},
+  {id:'언니', kr:'언니', fr:'sœur aînée (dit par une femme)', cat:'topik'},
+  {id:'동생', kr:'동생', fr:'cadet / cadette', cat:'topik'},
+  {id:'아들', kr:'아들', fr:'fils', cat:'topik'},
+  {id:'딸', kr:'딸', fr:'fille', cat:'topik'},
+  {id:'할아버지', kr:'할아버지', fr:'grand-père', cat:'topik'},
+  {id:'할머니', kr:'할머니', fr:'grand-mère', cat:'topik'},
+  // parties du corps
+  {id:'머리', kr:'머리', fr:'tête', cat:'topik'},
+  {id:'눈_oeil', kr:'눈', fr:'œil', cat:'topik'},
+  {id:'코', kr:'코', fr:'nez', cat:'topik'},
+  {id:'입', kr:'입', fr:'bouche', cat:'topik'},
+  {id:'귀', kr:'귀', fr:'oreille', cat:'topik'},
+  {id:'손', kr:'손', fr:'main', cat:'topik'},
+  {id:'발', kr:'발', fr:'pied', cat:'topik'},
+  {id:'배', kr:'배', fr:'ventre / estomac', cat:'topik'},
+  // météo et saisons
+  {id:'날씨', kr:'날씨', fr:'temps / météo', cat:'topik'},
+  {id:'비', kr:'비', fr:'pluie', cat:'topik'},
+  {id:'눈_neige', kr:'눈', fr:'neige', cat:'topik'},
+  {id:'바람', kr:'바람', fr:'vent', cat:'topik'},
+  {id:'더워요', kr:'더워요', fr:'il fait chaud', cat:'topik'},
+  {id:'추워요', kr:'추워요', fr:'il fait froid', cat:'topik'},
+  {id:'따뜻해요', kr:'따뜻해요', fr:"c'est doux / tiède", cat:'topik'},
+  {id:'봄', kr:'봄', fr:'printemps', cat:'topik'},
+  {id:'여름', kr:'여름', fr:'été', cat:'topik'},
+  {id:'가을', kr:'가을', fr:'automne', cat:'topik'},
+  {id:'겨울', kr:'겨울', fr:'hiver', cat:'topik'},
+  // positions spatiales
+  {id:'앞', kr:'앞', fr:'devant', cat:'topik'},
+  {id:'뒤', kr:'뒤', fr:'derrière', cat:'topik'},
+  {id:'위', kr:'위', fr:'dessus / au-dessus', cat:'topik'},
+  {id:'아래', kr:'아래', fr:'dessous / en-dessous', cat:'topik'},
+  {id:'옆', kr:'옆', fr:'à côté', cat:'topik'},
+  {id:'안', kr:'안', fr:'dedans', cat:'topik'},
+  {id:'밖', kr:'밖', fr:'dehors', cat:'topik'},
+  // fréquence
+  {id:'자주', kr:'자주', fr:'souvent', cat:'topik'},
+  {id:'가끔', kr:'가끔', fr:'parfois', cat:'topik'},
+  {id:'항상', kr:'항상', fr:'toujours', cat:'topik'},
+  {id:'보통', kr:'보통', fr:'habituellement', cat:'topik'},
+  // verbes et adjectifs du quotidien
+  {id:'일어나요', kr:'일어나요', fr:'se lever', cat:'topik'},
+  {id:'씻어요', kr:'씻어요', fr:'se laver', cat:'topik'},
+  {id:'쉬어요', kr:'쉬어요', fr:'se reposer', cat:'topik'},
+  {id:'만나요', kr:'만나요', fr:'rencontrer', cat:'topik'},
+  {id:'타요', kr:'타요', fr:'monter (dans un véhicule)', cat:'topik'},
+  {id:'걸어요', kr:'걸어요', fr:'marcher', cat:'topik'},
+  {id:'예뻐요', kr:'예뻐요', fr:"c'est joli / mignon", cat:'topik'},
+  {id:'친절해요', kr:'친절해요', fr:"c'est gentil", cat:'topik'},
+  {id:'멋있어요', kr:'멋있어요', fr:"c'est cool / élégant", cat:'topik'},
+  {id:'아파요', kr:'아파요', fr:'avoir mal / être malade', cat:'topik'},
+  {id:'똑똑해요', kr:'똑똑해요', fr:"c'est intelligent", cat:'topik'},
+  // transports
+  {id:'버스', kr:'버스', fr:'bus', cat:'topik'},
+  {id:'기차', kr:'기차', fr:'train', cat:'topik'},
+  {id:'비행기', kr:'비행기', fr:'avion', cat:'topik'},
+  {id:'택시', kr:'택시', fr:'taxi', cat:'topik'},
+  {id:'자전거', kr:'자전거', fr:'vélo', cat:'topik'},
+  // nourriture
+  {id:'빵', kr:'빵', fr:'pain', cat:'topik'},
+  {id:'고기', kr:'고기', fr:'viande', cat:'topik'},
+  {id:'과일', kr:'과일', fr:'fruit', cat:'topik'},
+  {id:'야채', kr:'야채', fr:'légumes', cat:'topik'},
+  {id:'계란', kr:'계란', fr:'œuf', cat:'topik'},
+];
+
+const CAT_LABELS = {
+  sujets:'Sujets & pronoms', verbes:'Verbes', objets:'Objets', lieux:'Lieux',
+  adjectifs:'Adjectifs', interrogatifs:'Mots interrogatifs', temporel:'Marqueurs temporels',
+  nouveaux:'Nouveaux mots (C7-C12)', topik:'Vocabulaire complémentaire TOPIK', maitrise:'Maîtrisé (10 bonnes de suite)'
+};
+
+const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
+const JONG = ['Ø','ㄱ','ㄲ','ㄴ','ㄹ','ㅁ','ㅂ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
+const JONG_INDEX = {'':0,'ㄱ':1,'ㄲ':2,'ㄴ':4,'ㄹ':8,'ㅁ':16,'ㅂ':17,'ㅅ':19,'ㅆ':20,'ㅇ':21,'ㅈ':22,'ㅊ':23,'ㅋ':24,'ㅌ':25,'ㅍ':26,'ㅎ':27};
+
+function composeSyllable(cho, jung, jongChar){
+  const ci = CHO.indexOf(cho);
+  const vi = JUNG.indexOf(jung);
+  if(ci<0 || vi<0) return null;
+  const fi = jongChar==='Ø' ? 0 : (JONG_INDEX[jongChar] ?? 0);
+  return String.fromCodePoint(0xAC00 + (ci*21+vi)*28 + fi);
+}
+
+/* ===================== ROMANISATION (hangul -> latin, approchée) ===================== */
+const CHO_R=['g','kk','n','d','tt','r','m','b','pp','s','ss','','j','jj','ch','k','t','p','h'];
+const JUNG_R=['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'];
+const JONG_R=['','k','k','k','n','n','n','t','l','k','m','p','l','l','p','l','m','p','p','t','t','ng','t','t','k','t','p','t'];
+function romanize(text){
+  let out='';
+  for(const ch of text){
+    const code=ch.charCodeAt(0);
+    if(code>=0xAC00 && code<=0xD7A3){
+      const s=code-0xAC00;
+      out += CHO_R[Math.floor(s/588)] + JUNG_R[Math.floor((s%588)/28)] + JONG_R[s%28];
+    } else if(ch===' '){ out+=' '; }
+  }
+  return out;
+}
+// Normalisation tolérante de la romanisation saisie : ramène les variantes courantes
+// à une forme canonique pour comparer sans frustrer (eo/o, eu/u, r/l, sourdes/sonores, doublons).
+function normRoman(s){
+  return (s||'').toLowerCase().trim()
+    .replace(/\s+/g,'')
+    .replace(/eo/g,'o').replace(/eu/g,'u')
+    .replace(/r/g,'l')
+    .replace(/k/g,'g').replace(/t/g,'d').replace(/p/g,'b')
+    .replace(/(.)\1+/g,'$1');
+}
+function romanMatch(userInput, kr){
+  return normRoman(userInput) === normRoman(romanize(kr));
+}
+
+/* ===================== VALIDATION DU SENS FRANÇAIS (permissive) ===================== */
+const FR_STOP=new Set(['le','la','les','un','une','des','de','du','d','l','c','est','ce','j','ai','en','y','il','a']);
+function normFr(s){
+  return (s||'').toLowerCase().trim()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .replace(/'/g,'')
+    .replace(/[^a-z0-9\s]/g,' ')
+    .replace(/\s+/g,' ').trim();
+}
+function frKeywords(s){ return normFr(s).split(' ').filter(w=>w && !FR_STOP.has(w)); }
+function frMatch(userInput, expectedFr){
+  const uw=new Set(frKeywords(userInput));
+  const ew=frKeywords(expectedFr);
+  if(ew.length===0) return normFr(userInput)===normFr(expectedFr);
+  return ew.some(w=>uw.has(w));
+}
+
+/* ===================== AUDIO CORÉEN (synthèse vocale du navigateur) ===================== */
+let audioEnabled = true;
+let koVoice = null;
+let voiceChecked = false;
+function pickKoreanVoice(){
+  if(!('speechSynthesis' in window)) return null;
+  const voices = window.speechSynthesis.getVoices();
+  return voices.find(v=>v.lang && v.lang.toLowerCase().startsWith('ko')) || null;
+}
+function initVoices(){
+  if(!('speechSynthesis' in window)) return;
+  koVoice = pickKoreanVoice();
+  voiceChecked = true;
+  // certaines plateformes chargent les voix de façon asynchrone
+  window.speechSynthesis.onvoiceschanged = ()=>{ koVoice = pickKoreanVoice(); updateVoiceNotice(); };
+  updateVoiceNotice();
+}
+function speakKorean(text){
+  if(!audioEnabled || !('speechSynthesis' in window)) return;
+  try{
+    window.speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    if(koVoice) u.voice = koVoice;
+    u.lang = 'ko-KR';
+    u.rate = 0.9;
+    window.speechSynthesis.speak(u);
+  }catch(e){ /* silencieux */ }
+}
+function updateVoiceNotice(){
+  const el = document.getElementById('voiceNotice');
+  if(!el) return;
+  if(!('speechSynthesis' in window)){
+    el.textContent = '🔇 Ce navigateur ne gère pas la synthèse vocale.';
+    el.style.display='block';
+  } else if(!koVoice){
+    el.textContent = '🔇 Voix coréenne non détectée — installe le pack Coréen (TTS) dans Windows, puis rouvre dans Chrome/Edge.';
+    el.style.display='block';
+  } else {
+    el.style.display='none';
+  }
+}
+
+/* ===================== ÉTAT ===================== */
+let progress = {};          // { 'word-id': level 0-4 }       (répétition espacée)
+let streaks = {};           // { 'word-id': bonnes réponses consécutives }  (maîtrise/graduation)
+let storageOK = true;
+const MASTERY_STREAK = 10;
+
+let session = null;         // objet de session en cours
+let builder = { cho:null, jung:null, jong:'Ø' };
+
+/* ===================== STOCKAGE ===================== */
+async function loadProgress(){
+  try{
+    const res = await window.storage.get('vocab-progress');
+    if(res && res.value){ progress = JSON.parse(res.value); }
+  }catch(e){ /* pas encore de données, ou stockage indisponible */ }
+  try{
+    const res2 = await window.storage.get('vocab-streaks');
+    if(res2 && res2.value){ streaks = JSON.parse(res2.value); }
+  }catch(e){ /* pas encore de données, ou stockage indisponible */ }
+}
+async function saveProgress(){
+  try{
+    const res = await window.storage.set('vocab-progress', JSON.stringify(progress));
+    if(!res) storageOK = false;
+  }catch(e){ storageOK = false; }
+}
+async function saveStreaks(){
+  try{
+    const res = await window.storage.set('vocab-streaks', JSON.stringify(streaks));
+    if(!res) storageOK = false;
+  }catch(e){ storageOK = false; }
+}
+async function resetProgress(){
+  progress = {};
+  streaks = {};
+  try{ await window.storage.delete('vocab-progress'); }catch(e){}
+  try{ await window.storage.delete('vocab-streaks'); }catch(e){}
+  renderOverview();
+}
+
+/* ===================== RENDU HOME ===================== */
+function levelOf(word){ return progress[word.id] ?? 0; }
+function streakOf(word){ return streaks[word.id] ?? 0; }
+function isGraduated(word){ return streakOf(word) >= MASTERY_STREAK; }
+// Catégorie effective : un mot maîtrisé (10 bonnes réponses de suite) bascule
+// dynamiquement dans la catégorie "Maîtrisé", quelle que soit sa catégorie d'origine.
+// S'il est raté plus tard, son streak retombe à 0 et il revient dans sa catégorie d'origine.
+function effectiveCategory(word){ return isGraduated(word) ? 'maitrise' : word.cat; }
+
+function renderOverview(){
+  const total = VOCAB.length;
+  document.getElementById('totalTag').textContent = total + ' mots';
+  const counts = [0,0,0,0,0];
+  VOCAB.forEach(w=>{ counts[levelOf(w)]++; });
+  const mastered = counts[4];
+  const pct = Math.round((mastered/total)*100);
+  document.getElementById('ring').style.setProperty('--pct', pct);
+  document.getElementById('ringTxt').textContent = pct+'%';
+  const barsEl = document.getElementById('lvBars');
+  barsEl.innerHTML = '';
+  const max = Math.max(...counts,1);
+  counts.forEach((c,i)=>{
+    const bar = document.createElement('div');
+    bar.className='lv-bar';
+    bar.title = 'Niveau '+i+' : '+c+' mots';
+    const fill = document.createElement('b');
+    fill.style.height = Math.max(6,(c/max)*100)+'%';
+    fill.style.position='absolute'; fill.style.bottom='0'; fill.style.left='0'; fill.style.right='0';
+    fill.style.borderRadius='3px 3px 0 0';
+    fill.style.background = i===4 ? 'var(--seal-green)' : 'var(--stamp)';
+    bar.style.height='30px'; bar.style.position='relative'; bar.style.background='transparent';
+    bar.appendChild(fill);
+    barsEl.appendChild(bar);
+  });
+  const graduatedCount = VOCAB.filter(isGraduated).length;
+  let badge = document.getElementById('masteryBadge');
+  if(!badge){
+    badge = document.createElement('div');
+    badge.id='masteryBadge';
+    badge.style.fontSize='.78rem'; badge.style.color='var(--ink-soft)'; badge.style.marginTop='10px';
+    document.getElementById('overviewCard').appendChild(badge);
+  }
+  badge.textContent = '🏆 ' + graduatedCount + ' mot' + (graduatedCount===1?'':'s') + ' maîtrisé' + (graduatedCount===1?'':'s') + ' (10 bonnes réponses de suite)';
+}
+
+function renderCategories(){
+  const list = document.getElementById('catList');
+  list.innerHTML='';
+  Object.keys(CAT_LABELS).forEach(cat=>{
+    const n = VOCAB.filter(w=>effectiveCategory(w)===cat).length;
+    const row = document.createElement('label');
+    row.className='cat-row';
+    row.innerHTML = `<input type="checkbox" class="catbox" value="${cat}" checked>
+      <span class="cname">${CAT_LABELS[cat]}</span><span class="ccount">${n} mots</span>`;
+    list.appendChild(row);
+  });
+}
+
+let selectedMode = 'recognition';
+let selectedLen = 20;
+
+function setupHomeInteractions(){
+  document.querySelectorAll('.mode-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.mode-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedMode = btn.dataset.mode;
+    });
+  });
+  document.querySelectorAll('.len-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.len-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+      selectedLen = parseInt(btn.dataset.len,10);
+    });
+  });
+  document.getElementById('startBtn').addEventListener('click', startSession);
+  document.getElementById('resetLink').addEventListener('click', async ()=>{
+    if(confirm('Remettre à zéro toute ta progression de vocabulaire ?')){
+      await resetProgress();
+    }
+  });
+  document.getElementById('quitBtn').addEventListener('click', ()=>{
+    showHome();
+  });
+  const at = document.getElementById('audioToggle');
+  if(at){
+    audioEnabled = at.checked;
+    at.addEventListener('change', ()=>{
+      audioEnabled = at.checked;
+      if(!audioEnabled && 'speechSynthesis' in window) window.speechSynthesis.cancel();
+    });
+  }
+  document.getElementById('listBtn').addEventListener('click', showList);
+  document.getElementById('listBackBtn').addEventListener('click', showHome);
+}
+
+function getSelectedCategories(){
+  return Array.from(document.querySelectorAll('.catbox:checked')).map(c=>c.value);
+}
+
+/* ===================== SESSION ===================== */
+function weightedPick(pool){
+  const weights = pool.map(w=>Math.max(1, 5-levelOf(w)));
+  const total = weights.reduce((a,b)=>a+b,0);
+  let r = Math.random()*total;
+  for(let i=0;i<pool.length;i++){
+    r -= weights[i];
+    if(r<=0) return pool[i];
+  }
+  return pool[pool.length-1];
+}
+
+function weightedPickIndex(arr){
+  const weights = arr.map(w=>Math.max(1, 5-levelOf(w)));
+  const total = weights.reduce((a,b)=>a+b,0);
+  let r = Math.random()*total;
+  for(let i=0;i<arr.length;i++){
+    r -= weights[i];
+    if(r<=0) return i;
+  }
+  return arr.length-1;
+}
+
+function buildQueue(pool, len){
+  const queue=[];
+  // Passe 1 : tirage pondéré SANS remise — chaque mot du pool apparaît au plus
+  // une fois avant qu'aucun ne soit répété. Les mots faibles sortent plus tôt
+  // mais aucun doublon tant que tout le pool n'a pas été vu.
+  const remaining = pool.slice();
+  while(queue.length < len && remaining.length > 0){
+    const idx = weightedPickIndex(remaining);
+    queue.push(remaining[idx]);
+    remaining.splice(idx,1);
+  }
+  // Passe 2 : si la session demandée dépasse la taille du pool, on complète
+  // avec des tirages pondérés AVEC remise (toujours en priorisant les mots faibles).
+  while(queue.length < len){
+    queue.push(weightedPick(pool));
+  }
+  return queue;
+}
+
+function startSession(){
+  const cats = getSelectedCategories();
+  const errEl = document.getElementById('homeErr');
+  if(cats.length===0){
+    errEl.textContent = 'Choisis au moins une catégorie avant de commencer.';
+    return;
+  }
+  errEl.textContent='';
+  const pool = VOCAB.filter(w=>cats.includes(effectiveCategory(w)));
+  const len = Math.min(selectedLen, pool.length*3 || selectedLen);
+  session = {
+    mode: selectedMode,
+    queue: buildQueue(pool, len),
+    pool: pool,
+    index: 0,
+    ok: 0, ko: 0,
+    total: len
+  };
+  showPractice();
+  renderQuestion();
+}
+
+function endSession(){
+  const body = document.getElementById('practiceBody');
+  body.innerHTML = `
+    <div class="card end-card">
+      <div class="big">${session.ok} / ${session.total}</div>
+      <div class="sub">bonnes réponses cette session</div>
+      <button class="start-btn" id="backHomeBtn">Retour à l'accueil</button>
+    </div>`;
+  document.getElementById('backHomeBtn').addEventListener('click', showHome);
+  document.getElementById('pCounter').textContent = 'Terminé';
+}
+
+/* ===================== AFFICHAGE QUESTIONS ===================== */
+function renderQuestion(){
+  if(session.index >= session.queue.length){ endSession(); return; }
+  document.getElementById('pCounter').textContent = `Question ${session.index+1}/${session.total}`;
+  document.getElementById('pOk').textContent = session.ok;
+  document.getElementById('pKo').textContent = session.ko;
+
+  const word = session.queue[session.index];
+  const body = document.getElementById('practiceBody');
+
+  if(session.mode === 'recognition'){
+    renderRecognition(word, body);
+  } else if(session.mode === 'meaning'){
+    renderMeaning(word, body);
+  } else {
+    renderRomanize(word, body);
+  }
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){
+    const j = Math.floor(Math.random()*(i+1));
+    [a[i],a[j]]=[a[j],a[i]];
+  }
+  return a;
+}
+
+function onAnswer(word, isCorrect){
+  const lvl = levelOf(word);
+  progress[word.id] = isCorrect ? Math.min(4, lvl+1) : 0;
+  streaks[word.id] = isCorrect ? streakOf(word)+1 : 0;
+  if(isCorrect) session.ok++; else session.ko++;
+  saveProgress();
+  saveStreaks();
+}
+
+function renderRecognition(word, body){
+  const sameCat = shuffle(session.pool.filter(w=>w.id!==word.id && effectiveCategory(w)===effectiveCategory(word)));
+  let candidates = sameCat;
+  if(candidates.length < 3){
+    const others = shuffle(session.pool.filter(w=>w.id!==word.id && effectiveCategory(w)!==effectiveCategory(word)));
+    candidates = candidates.concat(others);
+  }
+  const distractors = candidates.slice(0,3);
+  const options = shuffle([word, ...distractors]);
+  body.innerHTML = `
+    <div class="prompt-card">
+      <div class="qlabel">Que veut dire ce mot ?</div>
+      <div class="qword kr">${word.kr}</div>
+      <button class="audio-btn" id="audioBtn">🔊 Réécouter</button>
+    </div>
+    <div class="options" id="optsWrap"></div>
+    <div class="feedback" id="fb"></div>
+    <button class="next-btn" id="nextBtn">Mot suivant →</button>
+  `;
+  document.getElementById('audioBtn').addEventListener('click', ()=>speakKorean(word.kr));
+  speakKorean(word.kr); // prononciation automatique à l'apparition
+  const wrap = document.getElementById('optsWrap');
+  options.forEach(opt=>{
+    const b = document.createElement('button');
+    b.className='opt-btn';
+    b.textContent = opt.fr;
+    b.addEventListener('click', ()=>{
+      const correct = opt.id === word.id;
+      Array.from(wrap.children).forEach(c=>c.disabled=true);
+      b.classList.add(correct?'correct':'wrong');
+      if(!correct){
+        Array.from(wrap.children).find(c=>c.textContent===word.fr).classList.add('correct');
+      }
+      const wasGraduated = isGraduated(word);
+      onAnswer(word, correct);
+      showFeedback(correct, word, null, wasGraduated);
+    });
+    wrap.appendChild(b);
+  });
+  document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+}
+
+function renderMeaning(word, body){
+  body.innerHTML = `
+    <div class="prompt-card">
+      <div class="qlabel">Tape la signification en français</div>
+      <div class="qword kr">${word.kr}</div>
+      <button class="audio-btn" id="audioBtn">🔊 Réécouter</button>
+    </div>
+    <div class="card">
+      <input type="text" class="answer-input" id="ansInput" placeholder="ex. ami, eau, manger…" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="answer-hint">Validation souple : accents et articles ignorés, un mot-clé suffit.</div>
+      <div class="builder-actions" style="margin-top:12px">
+        <button class="bact submit" id="validateBtn">Valider</button>
+      </div>
+    </div>
+    <div class="feedback" id="fb"></div>
+    <button class="next-btn" id="nextBtn">Mot suivant →</button>
+  `;
+  document.getElementById('audioBtn').addEventListener('click', ()=>speakKorean(word.kr));
+  speakKorean(word.kr); // prononciation automatique
+
+  const input = document.getElementById('ansInput');
+  input.focus();
+  function validate(){
+    const given = input.value.trim();
+    if(!given) return;
+    const correct = frMatch(given, word.fr);
+    input.disabled = true;
+    document.getElementById('validateBtn').disabled = true;
+    const wasGraduated = isGraduated(word);
+    onAnswer(word, correct);
+    showFeedback(correct, word, given, wasGraduated);
+  }
+  document.getElementById('validateBtn').addEventListener('click', validate);
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') validate(); });
+  document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+}
+
+function renderRomanize(word, body){
+  body.innerHTML = `
+    <div class="prompt-card">
+      <div class="qlabel">Tape la prononciation (romanisation)</div>
+      <div class="qword">${word.fr}</div>
+    </div>
+    <div class="card">
+      <input type="text" class="answer-input" id="ansInput" placeholder="ex. hana, keopi, hakgyo…" autocomplete="off" autocapitalize="off" spellcheck="false">
+      <div class="answer-hint">Validation souple : eo/o, eu/u, r/l et sourdes/sonores acceptées. L'audio se joue après ta réponse.</div>
+      <div class="builder-actions" style="margin-top:12px">
+        <button class="bact submit" id="validateBtn">Valider</button>
+      </div>
+    </div>
+    <div class="feedback" id="fb"></div>
+    <button class="next-btn" id="nextBtn">Mot suivant →</button>
+  `;
+  const input = document.getElementById('ansInput');
+  input.focus();
+  function validate(){
+    const given = input.value.trim();
+    if(!given) return;
+    const correct = romanMatch(given, word.kr);
+    input.disabled = true;
+    document.getElementById('validateBtn').disabled = true;
+    const wasGraduated = isGraduated(word);
+    onAnswer(word, correct);
+    showFeedback(correct, word, given, wasGraduated);
+    speakKorean(word.kr); // audio seulement APRÈS la réponse, pour ne pas souffler
+  }
+  document.getElementById('validateBtn').addEventListener('click', validate);
+  input.addEventListener('keydown', e=>{ if(e.key==='Enter') validate(); });
+  document.getElementById('nextBtn').addEventListener('click', nextQuestion);
+}
+
+function showFeedback(correct, word, given, wasGraduated){
+  const fb = document.getElementById('fb');
+  fb.classList.add('show', correct?'ok':'ko');
+  let html;
+  if(correct){
+    html = `<span class="fans">Correct !</span> <span class="kr">${word.kr}</span> — ${word.fr}`;
+  } else {
+    html = `<span class="fans">Pas tout à fait.</span> Réponse attendue : <span class="kr">${word.kr}</span> — ${word.fr}` +
+      (given ? `<br>Ta réponse : <span class="kr">${given||'(vide)'}</span>` : '');
+  }
+  const nowGraduated = isGraduated(word);
+  if(nowGraduated && !wasGraduated){
+    html += `<br><span class="fans">🏆 Mot maîtrisé !</span> Il rejoint la catégorie "Maîtrisé".`;
+  } else if(!nowGraduated){
+    html += `<br><span style="opacity:.75">Série : ${streakOf(word)}/${MASTERY_STREAK} vers la maîtrise</span>`;
+  }
+  fb.innerHTML = html;
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function nextQuestion(){
+  session.index++;
+  renderQuestion();
+}
+
+/* ===================== NAVIGATION ÉCRANS ===================== */
+function showHome(){
+  document.getElementById('screen-home').style.display='block';
+  document.getElementById('screen-practice').style.display='none';
+  document.getElementById('screen-list').style.display='none';
+  renderOverview();
+}
+function showPractice(){
+  document.getElementById('screen-home').style.display='none';
+  document.getElementById('screen-practice').style.display='block';
+  document.getElementById('screen-list').style.display='none';
+}
+function showList(){
+  document.getElementById('screen-home').style.display='none';
+  document.getElementById('screen-practice').style.display='none';
+  document.getElementById('screen-list').style.display='block';
+  renderList('all');
+}
+
+/* ===================== LISTE DE VOCABULAIRE ===================== */
+let listFilterCat = 'all';
+function renderListFilter(){
+  const wrap = document.getElementById('listFilter');
+  wrap.innerHTML='';
+  const cats = ['all', ...Object.keys(CAT_LABELS)];
+  cats.forEach(cat=>{
+    const chip = document.createElement('button');
+    chip.className = 'lf-chip' + (cat===listFilterCat ? ' active' : '');
+    chip.textContent = cat==='all' ? 'Toutes' : CAT_LABELS[cat];
+    chip.addEventListener('click', ()=>{ listFilterCat = cat; renderList(cat); });
+    wrap.appendChild(chip);
+  });
+}
+function renderList(cat){
+  listFilterCat = cat;
+  renderListFilter();
+  const body = document.getElementById('listBody');
+  body.innerHTML = '';
+  // groupe les mots par catégorie effective pour un affichage organisé
+  const cats = cat==='all' ? Object.keys(CAT_LABELS) : [cat];
+  cats.forEach(c=>{
+    const words = VOCAB.filter(w=>effectiveCategory(w)===c);
+    if(words.length===0) return;
+    const card = document.createElement('div');
+    card.className='card';
+    let html = `<div class="vt-cat-head">${CAT_LABELS[c]} · ${words.length} mots</div>`;
+    html += `<table class="vocab-table"><thead><tr><th>Français</th><th>한글</th><th>Prononciation</th><th></th></tr></thead><tbody>`;
+    words.forEach(w=>{
+      html += `<tr>
+        <td>${w.fr}</td>
+        <td class="vt-kr kr">${w.kr}</td>
+        <td class="vt-roman">${romanize(w.kr)}</td>
+        <td><button class="vt-spk" data-kr="${w.kr}" title="Écouter">🔊</button></td>
+      </tr>`;
+    });
+    html += `</tbody></table>`;
+    card.innerHTML = html;
+    body.appendChild(card);
+  });
+  // câble les boutons audio
+  body.querySelectorAll('.vt-spk').forEach(btn=>{
+    btn.addEventListener('click', ()=>speakKorean(btn.getAttribute('data-kr')));
+  });
+}
+
+/* ===================== INIT ===================== */
+async function init(){
+  await loadProgress();
+  renderCategories();
+  setupHomeInteractions();
+  renderOverview();
+  initVoices();
+}
+init();
+
+})();
+</script>
+</body>
+</html>
