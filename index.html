@@ -73,7 +73,12 @@
   .vt-spk:active{ transform:scale(.9); }
   .vt-cat-head{ font-size:.78rem; font-weight:700; color:var(--stamp); padding:14px 10px 4px; }
 
-  .cats{ display:flex; flex-direction:column; gap:8px; }
+  .cats{ display:flex; flex-direction:column; gap:6px; }
+  .cat-group-header{ display:flex; align-items:center; justify-content:space-between; margin-top:14px; margin-bottom:2px; padding:0 2px; }
+  .cat-group-header:first-child{ margin-top:2px; }
+  .cat-group-label{ font-size:.7rem; font-weight:700; text-transform:uppercase; letter-spacing:.07em; color:var(--stamp); }
+  .cat-group-all{ border:1.2px solid var(--stamp); background:transparent; color:var(--stamp); border-radius:6px; padding:3px 9px; font-size:.72rem; font-weight:600; cursor:pointer; font-family:inherit; }
+  .cat-group-all:active{ background:var(--stamp); color:#fff; }
   .cat-row{ display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:8px; background:var(--paper); border:1px solid var(--line); cursor:pointer; }
   .cat-row input{ width:18px; height:18px; accent-color:var(--stamp); flex-shrink:0; }
   .cat-row .cname{ font-size:.88rem; font-weight:600; flex:1; }
@@ -97,7 +102,6 @@
 
   .reset-link{ display:block; text-align:center; font-size:.76rem; color:var(--ink-soft); margin-top:18px; text-decoration:underline; cursor:pointer; background:none; border:none; width:100%; }
 
-  /* practice screen */
   #screen-practice{ display:none; }
   .p-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; font-size:.8rem; color:var(--ink-soft); }
   .p-top .quit{ color:var(--brush-red); cursor:pointer; font-weight:600; background:none; border:none; font-size:.8rem; }
@@ -117,24 +121,9 @@
   .opt-btn.wrong{ border-color:var(--brush-red); background:var(--brush-red-bg); }
   .opt-btn[disabled]{ cursor:default; }
 
-  /* syllable builder */
-  .builder-out{ background:var(--paper); border:1.5px dashed var(--line); border-radius:10px; padding:14px; min-height:64px; display:flex; align-items:center; justify-content:center; font-size:1.8rem; font-weight:700; letter-spacing:.03em; margin-bottom:12px; word-break:break-all; }
-  .builder-out .ghost{ color:var(--ink-soft); font-weight:400; font-size:1rem; }
-  .preview-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:14px; }
-  .preview-syll{ width:52px; height:52px; border:1.5px solid var(--stamp); border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.5rem; font-weight:700; background:#EEF2F8; color:var(--stamp-deep); }
-  .preview-arrow{ color:var(--ink-soft); font-size:1.1rem; }
-
-  .jamo-section{ margin-bottom:10px; }
-  .jamo-label{ font-size:.68rem; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-soft); margin-bottom:5px; font-weight:700; }
-  .jamo-grid{ display:grid; grid-template-columns:repeat(auto-fill,minmax(40px,1fr)); gap:5px; }
-  .jamo-btn{ aspect-ratio:1; border:1.3px solid var(--line); border-radius:7px; background:var(--paper); color:var(--ink); font-size:1.05rem; font-weight:600; cursor:pointer; display:flex; align-items:center; justify-content:center; min-height:38px; }
-  .jamo-btn.active{ border-color:var(--stamp); background:#EEF2F8; color:var(--stamp-deep); }
-  .jamo-btn.none-final{ font-size:.7rem; }
-
   .builder-actions{ display:flex; gap:8px; margin-top:12px; }
   .bact{ flex:1; padding:11px 6px; border-radius:9px; border:1.5px solid var(--line); background:var(--paper); color:var(--ink); font-size:.82rem; font-weight:600; cursor:pointer; }
   .bact.submit{ background:var(--stamp); color:#fff; border-color:var(--stamp); flex:1.4; }
-  .bact.danger{ color:var(--brush-red); }
 
   .feedback{ margin-top:16px; padding:14px 16px; border-radius:10px; font-size:.9rem; display:none; }
   .feedback.show{ display:block; }
@@ -189,7 +178,6 @@
           <span class="m-title">3 · Rappel phonétique</span>
           <span class="m-desc">Le sens s'affiche en français, tu tapes la prononciation (ex. « hana »). Validation souple.</span>
         </div>
-        <!-- Leitner daily-review is a separate toggle, not a question-type mode -->
       </div>
       <label class="audio-toggle">
         <input type="checkbox" id="audioToggle" checked>
@@ -249,7 +237,6 @@
       <span class="scoretag"><span class="ok" id="pOk">0</span> · <span class="ko" id="pKo">0</span></span>
       <button class="quit" id="quitBtn">Arrêter</button>
     </div>
-
     <div id="practiceBody"></div>
   </div>
 
@@ -342,175 +329,178 @@ const VOCAB = [
   {id:'아까', kr:'아까', fr:"tout à l'heure", cat:'temporel'},
   {id:'오늘 아침', kr:'오늘 아침', fr:'ce matin', cat:'temporel'},
 
-  // ===== NOUVEAUX MOTS — COURS 7 À 12 =====
+  // ===== COURS 7–12 =====
   // nombres sino-coréens
-  {id:'공', kr:'공', fr:'zéro', cat:'nouveaux'},
-  {id:'일_un', kr:'일', fr:'un (1)', cat:'nouveaux'},
-  {id:'이', kr:'이', fr:'deux (2)', cat:'nouveaux'},
-  {id:'삼', kr:'삼', fr:'trois (3)', cat:'nouveaux'},
-  {id:'사', kr:'사', fr:'quatre (4)', cat:'nouveaux'},
-  {id:'오', kr:'오', fr:'cinq (5)', cat:'nouveaux'},
-  {id:'육', kr:'육', fr:'six (6)', cat:'nouveaux'},
-  {id:'칠', kr:'칠', fr:'sept (7)', cat:'nouveaux'},
-  {id:'팔', kr:'팔', fr:'huit (8)', cat:'nouveaux'},
-  {id:'구', kr:'구', fr:'neuf (9)', cat:'nouveaux'},
-  {id:'십', kr:'십', fr:'dix (10)', cat:'nouveaux'},
-  {id:'백', kr:'백', fr:'cent (100)', cat:'nouveaux'},
-  {id:'천', kr:'천', fr:'mille (1000)', cat:'nouveaux'},
-  {id:'만', kr:'만', fr:'dix mille (10 000)', cat:'nouveaux'},
+  {id:'공', kr:'공', fr:'zéro', cat:'nb-sino'},
+  {id:'일_un', kr:'일', fr:'un (1)', cat:'nb-sino'},
+  {id:'이', kr:'이', fr:'deux (2)', cat:'nb-sino'},
+  {id:'삼', kr:'삼', fr:'trois (3)', cat:'nb-sino'},
+  {id:'사', kr:'사', fr:'quatre (4)', cat:'nb-sino'},
+  {id:'오', kr:'오', fr:'cinq (5)', cat:'nb-sino'},
+  {id:'육', kr:'육', fr:'six (6)', cat:'nb-sino'},
+  {id:'칠', kr:'칠', fr:'sept (7)', cat:'nb-sino'},
+  {id:'팔', kr:'팔', fr:'huit (8)', cat:'nb-sino'},
+  {id:'구', kr:'구', fr:'neuf (9)', cat:'nb-sino'},
+  {id:'십', kr:'십', fr:'dix (10)', cat:'nb-sino'},
+  {id:'백', kr:'백', fr:'cent (100)', cat:'nb-sino'},
+  {id:'천', kr:'천', fr:'mille (1000)', cat:'nb-sino'},
+  {id:'만', kr:'만', fr:'dix mille (10 000)', cat:'nb-sino'},
   // nombres natifs
-  {id:'하나', kr:'하나', fr:'un (1)', cat:'nouveaux'},
-  {id:'둘', kr:'둘', fr:'deux (2)', cat:'nouveaux'},
-  {id:'셋', kr:'셋', fr:'trois (3)', cat:'nouveaux'},
-  {id:'넷', kr:'넷', fr:'quatre (4)', cat:'nouveaux'},
-  {id:'다섯', kr:'다섯', fr:'cinq (5)', cat:'nouveaux'},
-  {id:'여섯', kr:'여섯', fr:'six (6)', cat:'nouveaux'},
-  {id:'일곱', kr:'일곱', fr:'sept (7)', cat:'nouveaux'},
-  {id:'여덟', kr:'여덟', fr:'huit (8)', cat:'nouveaux'},
-  {id:'아홉', kr:'아홉', fr:'neuf (9)', cat:'nouveaux'},
-  {id:'열', kr:'열', fr:'dix (10)', cat:'nouveaux'},
-  {id:'스물', kr:'스물', fr:'vingt (20)', cat:'nouveaux'},
-  {id:'서른', kr:'서른', fr:'trente (30)', cat:'nouveaux'},
-  {id:'마흔', kr:'마흔', fr:'quarante (40)', cat:'nouveaux'},
-  {id:'쉰', kr:'쉰', fr:'cinquante (50)', cat:'nouveaux'},
-  {id:'예순', kr:'예순', fr:'soixante (60)', cat:'nouveaux'},
-  {id:'일흔', kr:'일흔', fr:'soixante-dix (70)', cat:'nouveaux'},
-  {id:'여든', kr:'여든', fr:'quatre-vingts (80)', cat:'nouveaux'},
-  {id:'아흔', kr:'아흔', fr:'quatre-vingt-dix (90)', cat:'nouveaux'},
-  // heure et compteurs
-  {id:'시', kr:'시', fr:'heure (point dans le temps)', cat:'nouveaux'},
-  {id:'반', kr:'반', fr:'demi / et demie', cat:'nouveaux'},
-  {id:'개', kr:'개', fr:'objet (compteur générique)', cat:'nouveaux'},
-  {id:'명', kr:'명', fr:'personne (compteur poli)', cat:'nouveaux'},
-  {id:'살', kr:'살', fr:'âge (ans)', cat:'nouveaux'},
-  {id:'번', kr:'번', fr:'fois', cat:'nouveaux'},
-  {id:'잔', kr:'잔', fr:'verre / tasse', cat:'nouveaux'},
-  {id:'병', kr:'병', fr:'bouteille', cat:'nouveaux'},
-  {id:'장', kr:'장', fr:'feuille / billet', cat:'nouveaux'},
-  {id:'권', kr:'권', fr:'livre (compteur)', cat:'nouveaux'},
-  {id:'마리', kr:'마리', fr:'animal (compteur)', cat:'nouveaux'},
-  // jours
-  {id:'월요일', kr:'월요일', fr:'lundi', cat:'nouveaux'},
-  {id:'화요일', kr:'화요일', fr:'mardi', cat:'nouveaux'},
-  {id:'수요일', kr:'수요일', fr:'mercredi', cat:'nouveaux'},
-  {id:'목요일', kr:'목요일', fr:'jeudi', cat:'nouveaux'},
-  {id:'금요일', kr:'금요일', fr:'vendredi', cat:'nouveaux'},
-  {id:'토요일', kr:'토요일', fr:'samedi', cat:'nouveaux'},
-  {id:'일요일', kr:'일요일', fr:'dimanche', cat:'nouveaux'},
-  // date / anniversaire
-  {id:'생일', kr:'생일', fr:'anniversaire', cat:'nouveaux'},
-  {id:'오전', kr:'오전', fr:'matin (AM)', cat:'nouveaux'},
-  {id:'오후', kr:'오후', fr:'après-midi (PM)', cat:'nouveaux'},
+  {id:'하나', kr:'하나', fr:'un (1)', cat:'nb-natifs'},
+  {id:'둘', kr:'둘', fr:'deux (2)', cat:'nb-natifs'},
+  {id:'셋', kr:'셋', fr:'trois (3)', cat:'nb-natifs'},
+  {id:'넷', kr:'넷', fr:'quatre (4)', cat:'nb-natifs'},
+  {id:'다섯', kr:'다섯', fr:'cinq (5)', cat:'nb-natifs'},
+  {id:'여섯', kr:'여섯', fr:'six (6)', cat:'nb-natifs'},
+  {id:'일곱', kr:'일곱', fr:'sept (7)', cat:'nb-natifs'},
+  {id:'여덟', kr:'여덟', fr:'huit (8)', cat:'nb-natifs'},
+  {id:'아홉', kr:'아홉', fr:'neuf (9)', cat:'nb-natifs'},
+  {id:'열', kr:'열', fr:'dix (10)', cat:'nb-natifs'},
+  {id:'스물', kr:'스물', fr:'vingt (20)', cat:'nb-natifs'},
+  {id:'서른', kr:'서른', fr:'trente (30)', cat:'nb-natifs'},
+  {id:'마흔', kr:'마흔', fr:'quarante (40)', cat:'nb-natifs'},
+  {id:'쉰', kr:'쉰', fr:'cinquante (50)', cat:'nb-natifs'},
+  {id:'예순', kr:'예순', fr:'soixante (60)', cat:'nb-natifs'},
+  {id:'일흔', kr:'일흔', fr:'soixante-dix (70)', cat:'nb-natifs'},
+  {id:'여든', kr:'여든', fr:'quatre-vingts (80)', cat:'nb-natifs'},
+  {id:'아흔', kr:'아흔', fr:'quatre-vingt-dix (90)', cat:'nb-natifs'},
+  // compteurs & heure
+  {id:'시', kr:'시', fr:'heure (point dans le temps)', cat:'compteurs'},
+  {id:'반', kr:'반', fr:'demi / et demie', cat:'compteurs'},
+  {id:'개', kr:'개', fr:'objet (compteur générique)', cat:'compteurs'},
+  {id:'명', kr:'명', fr:'personne (compteur poli)', cat:'compteurs'},
+  {id:'살', kr:'살', fr:'âge (ans)', cat:'compteurs'},
+  {id:'번', kr:'번', fr:'fois', cat:'compteurs'},
+  {id:'잔', kr:'잔', fr:'verre / tasse', cat:'compteurs'},
+  {id:'병', kr:'병', fr:'bouteille', cat:'compteurs'},
+  {id:'장', kr:'장', fr:'feuille / billet', cat:'compteurs'},
+  {id:'권', kr:'권', fr:'livre (compteur)', cat:'compteurs'},
+  {id:'마리', kr:'마리', fr:'animal (compteur)', cat:'compteurs'},
+  // jours & dates
+  {id:'월요일', kr:'월요일', fr:'lundi', cat:'jours-dates'},
+  {id:'화요일', kr:'화요일', fr:'mardi', cat:'jours-dates'},
+  {id:'수요일', kr:'수요일', fr:'mercredi', cat:'jours-dates'},
+  {id:'목요일', kr:'목요일', fr:'jeudi', cat:'jours-dates'},
+  {id:'금요일', kr:'금요일', fr:'vendredi', cat:'jours-dates'},
+  {id:'토요일', kr:'토요일', fr:'samedi', cat:'jours-dates'},
+  {id:'일요일', kr:'일요일', fr:'dimanche', cat:'jours-dates'},
+  {id:'생일', kr:'생일', fr:'anniversaire', cat:'jours-dates'},
+  {id:'오전', kr:'오전', fr:'matin (AM)', cat:'jours-dates'},
+  {id:'오후', kr:'오후', fr:'après-midi (PM)', cat:'jours-dates'},
   // connecteurs
-  {id:'그리고', kr:'그리고', fr:'et / et puis', cat:'nouveaux'},
-  {id:'그래서', kr:'그래서', fr:'donc', cat:'nouveaux'},
-  {id:'그런데', kr:'그런데', fr:'mais / cependant', cat:'nouveaux'},
-  {id:'하지만', kr:'하지만', fr:'mais (fort)', cat:'nouveaux'},
-  // futur / souhait
-  {id:'계획', kr:'계획', fr:'plan', cat:'nouveaux'},
-  {id:'여행', kr:'여행', fr:'voyage', cat:'nouveaux'},
-  {id:'내일', kr:'내일', fr:'demain', cat:'nouveaux'},
-  {id:'다음주', kr:'다음주', fr:'la semaine prochaine', cat:'nouveaux'},
-  {id:'다음달', kr:'다음달', fr:'le mois prochain', cat:'nouveaux'},
+  {id:'그리고', kr:'그리고', fr:'et / et puis', cat:'connecteurs'},
+  {id:'그래서', kr:'그래서', fr:'donc', cat:'connecteurs'},
+  {id:'그런데', kr:'그런데', fr:'mais / cependant', cat:'connecteurs'},
+  {id:'하지만', kr:'하지만', fr:'mais (fort)', cat:'connecteurs'},
+  // futur & voyage
+  {id:'계획', kr:'계획', fr:'plan', cat:'futur-voyage'},
+  {id:'여행', kr:'여행', fr:'voyage', cat:'futur-voyage'},
+  {id:'내일', kr:'내일', fr:'demain', cat:'futur-voyage'},
+  {id:'다음주', kr:'다음주', fr:'la semaine prochaine', cat:'futur-voyage'},
+  {id:'다음달', kr:'다음달', fr:'le mois prochain', cat:'futur-voyage'},
   // comparaison
-  {id:'더', kr:'더', fr:'plus', cat:'nouveaux'},
-  {id:'제일', kr:'제일', fr:'le plus (familier)', cat:'nouveaux'},
-  {id:'가장', kr:'가장', fr:'le plus (formel)', cat:'nouveaux'},
-  {id:'만큼', kr:'만큼', fr:'autant que', cat:'nouveaux'},
+  {id:'더', kr:'더', fr:'plus', cat:'comparaison'},
+  {id:'제일', kr:'제일', fr:'le plus (familier)', cat:'comparaison'},
+  {id:'가장', kr:'가장', fr:'le plus (formel)', cat:'comparaison'},
+  {id:'만큼', kr:'만큼', fr:'autant que', cat:'comparaison'},
 
-  // ===== VOCABULAIRE COMPLÉMENTAIRE TOPIK — THÈMES VARIÉS =====
+  // ===== VOCABULAIRE TOPIK =====
   // famille
-  {id:'아버지', kr:'아버지', fr:'père', cat:'topik'},
-  {id:'어머니', kr:'어머니', fr:'mère', cat:'topik'},
-  {id:'형', kr:'형', fr:'frère aîné (dit par un homme)', cat:'topik'},
-  {id:'누나', kr:'누나', fr:'sœur aînée (dit par un homme)', cat:'topik'},
-  {id:'오빠', kr:'오빠', fr:'frère aîné (dit par une femme)', cat:'topik'},
-  {id:'언니', kr:'언니', fr:'sœur aînée (dit par une femme)', cat:'topik'},
-  {id:'동생', kr:'동생', fr:'cadet / cadette', cat:'topik'},
-  {id:'아들', kr:'아들', fr:'fils', cat:'topik'},
-  {id:'딸', kr:'딸', fr:'fille', cat:'topik'},
-  {id:'할아버지', kr:'할아버지', fr:'grand-père', cat:'topik'},
-  {id:'할머니', kr:'할머니', fr:'grand-mère', cat:'topik'},
-  // parties du corps
-  {id:'머리', kr:'머리', fr:'tête', cat:'topik'},
-  {id:'눈_oeil', kr:'눈', fr:'œil', cat:'topik'},
-  {id:'코', kr:'코', fr:'nez', cat:'topik'},
-  {id:'입', kr:'입', fr:'bouche', cat:'topik'},
-  {id:'귀', kr:'귀', fr:'oreille', cat:'topik'},
-  {id:'손', kr:'손', fr:'main', cat:'topik'},
-  {id:'발', kr:'발', fr:'pied', cat:'topik'},
-  {id:'배', kr:'배', fr:'ventre / estomac', cat:'topik'},
-  // météo et saisons
-  {id:'날씨', kr:'날씨', fr:'temps / météo', cat:'topik'},
-  {id:'비', kr:'비', fr:'pluie', cat:'topik'},
-  {id:'눈_neige', kr:'눈', fr:'neige', cat:'topik'},
-  {id:'바람', kr:'바람', fr:'vent', cat:'topik'},
-  {id:'더워요', kr:'더워요', fr:'il fait chaud', cat:'topik'},
-  {id:'추워요', kr:'추워요', fr:'il fait froid', cat:'topik'},
-  {id:'따뜻해요', kr:'따뜻해요', fr:"c'est doux / tiède", cat:'topik'},
-  {id:'봄', kr:'봄', fr:'printemps', cat:'topik'},
-  {id:'여름', kr:'여름', fr:'été', cat:'topik'},
-  {id:'가을', kr:'가을', fr:'automne', cat:'topik'},
-  {id:'겨울', kr:'겨울', fr:'hiver', cat:'topik'},
+  {id:'아버지', kr:'아버지', fr:'père', cat:'famille'},
+  {id:'어머니', kr:'어머니', fr:'mère', cat:'famille'},
+  {id:'형', kr:'형', fr:'frère aîné (dit par un homme)', cat:'famille'},
+  {id:'누나', kr:'누나', fr:'sœur aînée (dit par un homme)', cat:'famille'},
+  {id:'오빠', kr:'오빠', fr:'frère aîné (dit par une femme)', cat:'famille'},
+  {id:'언니', kr:'언니', fr:'sœur aînée (dit par une femme)', cat:'famille'},
+  {id:'동생', kr:'동생', fr:'cadet / cadette', cat:'famille'},
+  {id:'아들', kr:'아들', fr:'fils', cat:'famille'},
+  {id:'딸', kr:'딸', fr:'fille', cat:'famille'},
+  {id:'할아버지', kr:'할아버지', fr:'grand-père', cat:'famille'},
+  {id:'할머니', kr:'할머니', fr:'grand-mère', cat:'famille'},
+  // corps humain
+  {id:'머리', kr:'머리', fr:'tête', cat:'corps'},
+  {id:'눈_oeil', kr:'눈', fr:'œil', cat:'corps'},
+  {id:'코', kr:'코', fr:'nez', cat:'corps'},
+  {id:'입', kr:'입', fr:'bouche', cat:'corps'},
+  {id:'귀', kr:'귀', fr:'oreille', cat:'corps'},
+  {id:'손', kr:'손', fr:'main', cat:'corps'},
+  {id:'발', kr:'발', fr:'pied', cat:'corps'},
+  {id:'배', kr:'배', fr:'ventre / estomac', cat:'corps'},
+  // météo & saisons
+  {id:'날씨', kr:'날씨', fr:'temps / météo', cat:'meteo'},
+  {id:'비', kr:'비', fr:'pluie', cat:'meteo'},
+  {id:'눈_neige', kr:'눈', fr:'neige', cat:'meteo'},
+  {id:'바람', kr:'바람', fr:'vent', cat:'meteo'},
+  {id:'더워요', kr:'더워요', fr:'il fait chaud', cat:'meteo'},
+  {id:'추워요', kr:'추워요', fr:'il fait froid', cat:'meteo'},
+  {id:'따뜻해요', kr:'따뜻해요', fr:"c'est doux / tiède", cat:'meteo'},
+  {id:'봄', kr:'봄', fr:'printemps', cat:'meteo'},
+  {id:'여름', kr:'여름', fr:'été', cat:'meteo'},
+  {id:'가을', kr:'가을', fr:'automne', cat:'meteo'},
+  {id:'겨울', kr:'겨울', fr:'hiver', cat:'meteo'},
   // positions spatiales
-  {id:'앞', kr:'앞', fr:'devant', cat:'topik'},
-  {id:'뒤', kr:'뒤', fr:'derrière', cat:'topik'},
-  {id:'위', kr:'위', fr:'dessus / au-dessus', cat:'topik'},
-  {id:'아래', kr:'아래', fr:'dessous / en-dessous', cat:'topik'},
-  {id:'옆', kr:'옆', fr:'à côté', cat:'topik'},
-  {id:'안', kr:'안', fr:'dedans', cat:'topik'},
-  {id:'밖', kr:'밖', fr:'dehors', cat:'topik'},
+  {id:'앞', kr:'앞', fr:'devant', cat:'positions'},
+  {id:'뒤', kr:'뒤', fr:'derrière', cat:'positions'},
+  {id:'위', kr:'위', fr:'dessus / au-dessus', cat:'positions'},
+  {id:'아래', kr:'아래', fr:'dessous / en-dessous', cat:'positions'},
+  {id:'옆', kr:'옆', fr:'à côté', cat:'positions'},
+  {id:'안', kr:'안', fr:'dedans', cat:'positions'},
+  {id:'밖', kr:'밖', fr:'dehors', cat:'positions'},
   // fréquence
-  {id:'자주', kr:'자주', fr:'souvent', cat:'topik'},
-  {id:'가끔', kr:'가끔', fr:'parfois', cat:'topik'},
-  {id:'항상', kr:'항상', fr:'toujours', cat:'topik'},
-  {id:'보통', kr:'보통', fr:'habituellement', cat:'topik'},
-  // verbes et adjectifs du quotidien
-  {id:'일어나요', kr:'일어나요', fr:'se lever', cat:'topik'},
-  {id:'씻어요', kr:'씻어요', fr:'se laver', cat:'topik'},
-  {id:'쉬어요', kr:'쉬어요', fr:'se reposer', cat:'topik'},
-  {id:'만나요', kr:'만나요', fr:'rencontrer', cat:'topik'},
-  {id:'타요', kr:'타요', fr:'monter (dans un véhicule)', cat:'topik'},
-  {id:'걸어요', kr:'걸어요', fr:'marcher', cat:'topik'},
-  {id:'예뻐요', kr:'예뻐요', fr:"c'est joli / mignon", cat:'topik'},
-  {id:'친절해요', kr:'친절해요', fr:"c'est gentil", cat:'topik'},
-  {id:'멋있어요', kr:'멋있어요', fr:"c'est cool / élégant", cat:'topik'},
-  {id:'아파요', kr:'아파요', fr:'avoir mal / être malade', cat:'topik'},
-  {id:'똑똑해요', kr:'똑똑해요', fr:"c'est intelligent", cat:'topik'},
+  {id:'자주', kr:'자주', fr:'souvent', cat:'frequence'},
+  {id:'가끔', kr:'가끔', fr:'parfois', cat:'frequence'},
+  {id:'항상', kr:'항상', fr:'toujours', cat:'frequence'},
+  {id:'보통', kr:'보통', fr:'habituellement', cat:'frequence'},
+  // verbes & adjectifs du quotidien
+  {id:'일어나요', kr:'일어나요', fr:'se lever', cat:'verbes-quotidien'},
+  {id:'씻어요', kr:'씻어요', fr:'se laver', cat:'verbes-quotidien'},
+  {id:'쉬어요', kr:'쉬어요', fr:'se reposer', cat:'verbes-quotidien'},
+  {id:'만나요', kr:'만나요', fr:'rencontrer', cat:'verbes-quotidien'},
+  {id:'타요', kr:'타요', fr:'monter (dans un véhicule)', cat:'verbes-quotidien'},
+  {id:'걸어요', kr:'걸어요', fr:'marcher', cat:'verbes-quotidien'},
+  {id:'예뻐요', kr:'예뻐요', fr:"c'est joli / mignon", cat:'verbes-quotidien'},
+  {id:'친절해요', kr:'친절해요', fr:"c'est gentil", cat:'verbes-quotidien'},
+  {id:'멋있어요', kr:'멋있어요', fr:"c'est cool / élégant", cat:'verbes-quotidien'},
+  {id:'아파요', kr:'아파요', fr:'avoir mal / être malade', cat:'verbes-quotidien'},
+  {id:'똑똑해요', kr:'똑똑해요', fr:"c'est intelligent", cat:'verbes-quotidien'},
   // transports
-  {id:'버스', kr:'버스', fr:'bus', cat:'topik'},
-  {id:'기차', kr:'기차', fr:'train', cat:'topik'},
-  {id:'비행기', kr:'비행기', fr:'avion', cat:'topik'},
-  {id:'택시', kr:'택시', fr:'taxi', cat:'topik'},
-  {id:'자전거', kr:'자전거', fr:'vélo', cat:'topik'},
-  // nourriture
-  {id:'빵', kr:'빵', fr:'pain', cat:'topik'},
-  {id:'고기', kr:'고기', fr:'viande', cat:'topik'},
-  {id:'과일', kr:'과일', fr:'fruit', cat:'topik'},
-  {id:'야채', kr:'야채', fr:'légumes', cat:'topik'},
-  {id:'계란', kr:'계란', fr:'œuf', cat:'topik'},
+  {id:'버스', kr:'버스', fr:'bus', cat:'transports'},
+  {id:'기차', kr:'기차', fr:'train', cat:'transports'},
+  {id:'비행기', kr:'비행기', fr:'avion', cat:'transports'},
+  {id:'택시', kr:'택시', fr:'taxi', cat:'transports'},
+  {id:'자전거', kr:'자전거', fr:'vélo', cat:'transports'},
+  // nourriture TOPIK
+  {id:'빵', kr:'빵', fr:'pain', cat:'nourriture-topik'},
+  {id:'고기', kr:'고기', fr:'viande', cat:'nourriture-topik'},
+  {id:'과일', kr:'과일', fr:'fruit', cat:'nourriture-topik'},
+  {id:'야채', kr:'야채', fr:'légumes', cat:'nourriture-topik'},
+  {id:'계란', kr:'계란', fr:'œuf', cat:'nourriture-topik'},
 ];
 
 const CAT_LABELS = {
   sujets:'Sujets & pronoms', verbes:'Verbes', objets:'Objets', lieux:'Lieux',
   adjectifs:'Adjectifs', interrogatifs:'Mots interrogatifs', temporel:'Marqueurs temporels',
-  nouveaux:'Nouveaux mots (C7-C12)', topik:'Vocabulaire complémentaire TOPIK', maitrise:'Maîtrisé (10 bonnes de suite)'
+  'nb-sino':'Nombres sino-coréens', 'nb-natifs':'Nombres natifs', compteurs:'Compteurs & unités',
+  'jours-dates':'Jours & dates', connecteurs:'Connecteurs', 'futur-voyage':'Futur & voyage',
+  comparaison:'Comparaison',
+  famille:'Famille', corps:'Corps humain', meteo:'Météo & saisons',
+  positions:'Positions spatiales', frequence:'Fréquence', 'verbes-quotidien':'Verbes du quotidien',
+  transports:'Transports', 'nourriture-topik':'Nourriture',
 };
 
-const CHO = ['ㄱ','ㄲ','ㄴ','ㄷ','ㄸ','ㄹ','ㅁ','ㅂ','ㅃ','ㅅ','ㅆ','ㅇ','ㅈ','ㅉ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
-const JUNG = ['ㅏ','ㅐ','ㅑ','ㅒ','ㅓ','ㅔ','ㅕ','ㅖ','ㅗ','ㅘ','ㅙ','ㅚ','ㅛ','ㅜ','ㅝ','ㅞ','ㅟ','ㅠ','ㅡ','ㅢ','ㅣ'];
-const JONG = ['Ø','ㄱ','ㄲ','ㄴ','ㄹ','ㅁ','ㅂ','ㅅ','ㅆ','ㅇ','ㅈ','ㅊ','ㅋ','ㅌ','ㅍ','ㅎ'];
-const JONG_INDEX = {'':0,'ㄱ':1,'ㄲ':2,'ㄴ':4,'ㄹ':8,'ㅁ':16,'ㅂ':17,'ㅅ':19,'ㅆ':20,'ㅇ':21,'ㅈ':22,'ㅊ':23,'ㅋ':24,'ㅌ':25,'ㅍ':26,'ㅎ':27};
+const CAT_GROUPS = [
+  { label:'Cours 1–6', cats:['sujets','verbes','objets','lieux','adjectifs','interrogatifs','temporel'] },
+  { label:'Cours 7–12', cats:['nb-sino','nb-natifs','compteurs','jours-dates','connecteurs','futur-voyage','comparaison'] },
+  { label:'Vocabulaire TOPIK', cats:['famille','corps','meteo','positions','frequence','verbes-quotidien','transports','nourriture-topik'] },
+];
 
-function composeSyllable(cho, jung, jongChar){
-  const ci = CHO.indexOf(cho);
-  const vi = JUNG.indexOf(jung);
-  if(ci<0 || vi<0) return null;
-  const fi = jongChar==='Ø' ? 0 : (JONG_INDEX[jongChar] ?? 0);
-  return String.fromCodePoint(0xAC00 + (ci*21+vi)*28 + fi);
-}
+const LIST_FILTERS = [
+  { key:'all', label:'Tous' },
+  { key:'cours1-6', label:'Cours 1–6', cats:['sujets','verbes','objets','lieux','adjectifs','interrogatifs','temporel'] },
+  { key:'cours7-12', label:'Cours 7–12', cats:['nb-sino','nb-natifs','compteurs','jours-dates','connecteurs','futur-voyage','comparaison'] },
+  { key:'topik', label:'TOPIK', cats:['famille','corps','meteo','positions','frequence','verbes-quotidien','transports','nourriture-topik'] },
+];
 
-/* ===================== ROMANISATION (hangul -> latin, approchée) ===================== */
 const CHO_R=['g','kk','n','d','tt','r','m','b','pp','s','ss','','j','jj','ch','k','t','p','h'];
 const JUNG_R=['a','ae','ya','yae','eo','e','yeo','ye','o','wa','wae','oe','yo','u','wo','we','wi','yu','eu','ui','i'];
 const JONG_R=['','k','k','k','n','n','n','t','l','k','m','p','l','l','p','l','m','p','p','t','t','ng','t','t','k','t','p','t'];
@@ -525,8 +515,6 @@ function romanize(text){
   }
   return out;
 }
-// Normalisation tolérante de la romanisation saisie : ramène les variantes courantes
-// à une forme canonique pour comparer sans frustrer (eo/o, eu/u, r/l, sourdes/sonores, doublons).
 function normRoman(s){
   return (s||'').toLowerCase().trim()
     .replace(/\s+/g,'')
@@ -539,11 +527,10 @@ function romanMatch(userInput, kr){
   return normRoman(userInput) === normRoman(romanize(kr));
 }
 
-/* ===================== VALIDATION DU SENS FRANÇAIS (permissive) ===================== */
 const FR_STOP=new Set(['le','la','les','un','une','des','de','du','d','l','c','est','ce','j','ai','en','y','il','a']);
 function normFr(s){
   return (s||'').toLowerCase().trim()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+    .normalize('NFD').replace(/[̀-ͯ]/g,'')
     .replace(/'/g,'')
     .replace(/[^a-z0-9\s]/g,' ')
     .replace(/\s+/g,' ').trim();
@@ -556,10 +543,9 @@ function frMatch(userInput, expectedFr){
   return ew.some(w=>uw.has(w));
 }
 
-/* ===================== AUDIO CORÉEN (synthèse vocale du navigateur) ===================== */
+/* ===================== AUDIO ===================== */
 let audioEnabled = true;
 let koVoice = null;
-let voiceChecked = false;
 function pickKoreanVoice(){
   if(!('speechSynthesis' in window)) return null;
   const voices = window.speechSynthesis.getVoices();
@@ -568,8 +554,6 @@ function pickKoreanVoice(){
 function initVoices(){
   if(!('speechSynthesis' in window)) return;
   koVoice = pickKoreanVoice();
-  voiceChecked = true;
-  // certaines plateformes chargent les voix de façon asynchrone
   window.speechSynthesis.onvoiceschanged = ()=>{ koVoice = pickKoreanVoice(); updateVoiceNotice(); };
   updateVoiceNotice();
 }
@@ -582,7 +566,7 @@ function speakKorean(text){
     u.lang = 'ko-KR';
     u.rate = 0.9;
     window.speechSynthesis.speak(u);
-  }catch(e){ /* silencieux */ }
+  }catch(e){}
 }
 function updateVoiceNotice(){
   const el = document.getElementById('voiceNotice');
@@ -599,21 +583,16 @@ function updateVoiceNotice(){
 }
 
 /* ===================== ÉTAT ===================== */
-let progress = {};          // kept for backward compatibility: maps to box-1
-let streaks = {};           // { 'word-id': bonnes réponses consécutives }
+let progress = {};
+let streaks = {};
 let storageOK = true;
-const MASTERY_STREAK = 10;
+let session = null;
 
-let session = null;         // objet de session en cours
-let builder = { cho:null, jung:null, jong:'Ø' };
+const LEITNER_INTERVALS = [1,2,4,8,16];
+let leitner = {};
+let lastReviewed = {};
 
-// Leitner-specific state
-const LEITNER_INTERVALS = [1,2,4,8,16]; // days for boxes 1..5
-let leitner = {};           // { 'word-id': { box:1-5, next: 'YYYY-MM-DD' } }
-let lastReviewed = {};      // { 'word-id': 'YYYY-MM-DD' }
-
-/* ===================== STOCKAGE & MIGRATION ===================== */
-// storage shim: prefer existing `window.storage` if provided, else use localStorage
+/* ===================== STOCKAGE ===================== */
 if(!window.storage || !window.storage.get){
   window.storage = {
     get: async (k)=>{ const v = localStorage.getItem(k); return v===null?null:{value:v}; },
@@ -625,14 +604,8 @@ if(!window.storage || !window.storage.get){
 function todayStr(offsetDays=0){ const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()+offsetDays); return d.toISOString().slice(0,10); }
 
 async function loadLeitner(){
-  try{
-    const r = await window.storage.get('vocab-leitner');
-    if(r && r.value) leitner = JSON.parse(r.value);
-  }catch(e){}
-  try{
-    const r2 = await window.storage.get('vocab-leitner-reviewed');
-    if(r2 && r2.value) lastReviewed = JSON.parse(r2.value);
-  }catch(e){}
+  try{ const r = await window.storage.get('vocab-leitner'); if(r && r.value) leitner = JSON.parse(r.value); }catch(e){}
+  try{ const r2 = await window.storage.get('vocab-leitner-reviewed'); if(r2 && r2.value) lastReviewed = JSON.parse(r2.value); }catch(e){}
 }
 async function saveLeitner(){
   try{ await window.storage.set('vocab-leitner', JSON.stringify(leitner)); }catch(e){ storageOK=false; }
@@ -641,17 +614,13 @@ async function saveLastReviewed(){
   try{ await window.storage.set('vocab-leitner-reviewed', JSON.stringify(lastReviewed)); }catch(e){ storageOK=false; }
 }
 
-// user-added vocab persistence (optional)
 let userVocab = [];
 async function loadUserVocab(){
   try{
     const r = await window.storage.get('vocab-user');
     if(r && r.value) userVocab = JSON.parse(r.value);
-    // merge into VOCAB while avoiding duplicates
     if(Array.isArray(userVocab)){
-      userVocab.forEach(u=>{
-        if(!VOCAB.find(w=>w.id===u.id)) VOCAB.push(u);
-      });
+      userVocab.forEach(u=>{ if(!VOCAB.find(w=>w.id===u.id)) VOCAB.push(u); });
     }
   }catch(e){}
 }
@@ -660,23 +629,16 @@ async function saveUserVocab(){
 }
 
 async function loadProgress(){
-  try{
-    const res = await window.storage.get('vocab-progress');
-    if(res && res.value){ progress = JSON.parse(res.value); }
-  }catch(e){ }
-  try{
-    const res2 = await window.storage.get('vocab-streaks');
-    if(res2 && res2.value){ streaks = JSON.parse(res2.value); }
-  }catch(e){ }
+  try{ const res = await window.storage.get('vocab-progress'); if(res && res.value){ progress = JSON.parse(res.value); } }catch(e){}
+  try{ const res2 = await window.storage.get('vocab-streaks'); if(res2 && res2.value){ streaks = JSON.parse(res2.value); } }catch(e){}
   await loadLeitner();
-  // Migration: if no leitner data, create it from existing state
   if(!leitner || Object.keys(leitner).length===0){
     const today = todayStr();
+    const MASTERY_STREAK = 10;
     VOCAB.forEach(w=>{
       const graduated = (streaks[w.id]||0) >= MASTERY_STREAK;
-      const box = graduated ? 4 : 1; // graduated start in box 4, others in box 1
+      const box = graduated ? 4 : 1;
       leitner[w.id] = { box: box, next: today };
-      // keep progress mapping for backward compatibility
       progress[w.id] = Math.max(0, box-1);
     });
     await saveLeitner();
@@ -690,10 +652,7 @@ async function saveStreaks(){
   try{ await window.storage.set('vocab-streaks', JSON.stringify(streaks)); }catch(e){ storageOK=false; }
 }
 async function resetProgress(){
-  progress = {};
-  streaks = {};
-  leitner = {};
-  lastReviewed = {};
+  progress = {}; streaks = {}; leitner = {}; lastReviewed = {};
   try{ await window.storage.delete('vocab-progress'); }catch(e){}
   try{ await window.storage.delete('vocab-streaks'); }catch(e){}
   try{ await window.storage.delete('vocab-leitner'); }catch(e){}
@@ -703,24 +662,17 @@ async function resetProgress(){
 
 /* ===================== RENDU HOME ===================== */
 function levelOf(word){
-  // derive old 0-4 level from Leitner box (1-5)
   const box = (leitner[word.id] && leitner[word.id].box) || (progress[word.id]!==undefined ? (progress[word.id]+1) : 1);
   return Math.max(0, Math.min(4, box-1));
 }
-function streakOf(word){ return streaks[word.id] ?? 0; }
-function isGraduated(word){ return streakOf(word) >= MASTERY_STREAK; }
-// Catégorie effective : un mot maîtrisé (10 bonnes réponses de suite) bascule
-// dynamiquement dans la catégorie "Maîtrisé", quelle que soit sa catégorie d'origine.
-// S'il est raté plus tard, son streak retombe à 0 et il revient dans sa catégorie d'origine.
-function effectiveCategory(word){ return isGraduated(word) ? 'maitrise' : word.cat; }
 
 function renderOverview(){
   const total = VOCAB.length;
   document.getElementById('totalTag').textContent = total + ' mots';
   const counts = [0,0,0,0,0];
   VOCAB.forEach(w=>{ counts[levelOf(w)]++; });
-  const mastered = counts[4];
-  const pct = Math.round((mastered/total)*100);
+  const strongCount = VOCAB.filter(w => (leitner[w.id] && leitner[w.id].box >= 4)).length;
+  const pct = Math.round((strongCount/total)*100);
   document.getElementById('ring').style.setProperty('--pct', pct);
   document.getElementById('ringTxt').textContent = pct+'%';
   const barsEl = document.getElementById('lvBars');
@@ -729,26 +681,24 @@ function renderOverview(){
   counts.forEach((c,i)=>{
     const bar = document.createElement('div');
     bar.className='lv-bar';
-    bar.title = 'Niveau '+i+' : '+c+' mots';
+    bar.title = 'Boîte '+(i+1)+' : '+c+' mots';
     const fill = document.createElement('b');
     fill.style.height = Math.max(6,(c/max)*100)+'%';
     fill.style.position='absolute'; fill.style.bottom='0'; fill.style.left='0'; fill.style.right='0';
     fill.style.borderRadius='3px 3px 0 0';
-    fill.style.background = i===4 ? 'var(--seal-green)' : 'var(--stamp)';
+    fill.style.background = i>=3 ? 'var(--seal-green)' : 'var(--stamp)';
     bar.style.height='30px'; bar.style.position='relative'; bar.style.background='transparent';
     bar.appendChild(fill);
     barsEl.appendChild(bar);
   });
-  const graduatedCount = VOCAB.filter(isGraduated).length;
-  let badge = document.getElementById('masteryBadge');
+  let badge = document.getElementById('progressBadge');
   if(!badge){
     badge = document.createElement('div');
-    badge.id='masteryBadge';
+    badge.id='progressBadge';
     badge.style.fontSize='.78rem'; badge.style.color='var(--ink-soft)'; badge.style.marginTop='10px';
     document.getElementById('overviewCard').appendChild(badge);
   }
-  badge.textContent = '🏆 ' + graduatedCount + ' mot' + (graduatedCount===1?'':'s') + ' maîtrisé' + (graduatedCount===1?'':'s') + ' (10 bonnes réponses de suite)';
-  // Leitner summary: nombre de mots à réviser aujourd'hui + nombre déjà faits
+  badge.textContent = '💪 ' + strongCount + ' mot' + (strongCount===1?'':'s') + ' solide' + (strongCount===1?'':'s') + ' (boîte 4–5)';
   const today = todayStr();
   const totalToday = VOCAB.filter(w=>leitner[w.id] && leitner[w.id].next <= today).length;
   const doneToday = Object.keys(lastReviewed).filter(id=> lastReviewed[id] === today).length;
@@ -762,13 +712,31 @@ function renderOverview(){
 function renderCategories(){
   const list = document.getElementById('catList');
   list.innerHTML='';
-  Object.keys(CAT_LABELS).forEach(cat=>{
-    const n = VOCAB.filter(w=>effectiveCategory(w)===cat).length;
-    const row = document.createElement('label');
-    row.className='cat-row';
-    row.innerHTML = `<input type="checkbox" class="catbox" value="${cat}" checked>
-      <span class="cname">${CAT_LABELS[cat]}</span><span class="ccount">${n} mots</span>`;
-    list.appendChild(row);
+  CAT_GROUPS.forEach(group=>{
+    const gh = document.createElement('div');
+    gh.className='cat-group-header';
+    const lbl = document.createElement('span');
+    lbl.className='cat-group-label';
+    lbl.textContent = group.label;
+    const allBtn = document.createElement('button');
+    allBtn.className='cat-group-all';
+    allBtn.textContent='Tout';
+    allBtn.addEventListener('click', ()=>{
+      const boxes = group.cats.map(c=>list.querySelector(`.catbox[value="${c}"]`)).filter(Boolean);
+      const allChecked = boxes.every(b=>b.checked);
+      boxes.forEach(b=>b.checked=!allChecked);
+    });
+    gh.appendChild(lbl);
+    gh.appendChild(allBtn);
+    list.appendChild(gh);
+    group.cats.forEach(cat=>{
+      const n = VOCAB.filter(w=>w.cat===cat).length;
+      const row = document.createElement('label');
+      row.className='cat-row';
+      row.innerHTML=`<input type="checkbox" class="catbox" value="${cat}" checked>
+        <span class="cname">${CAT_LABELS[cat]}</span><span class="ccount">${n}</span>`;
+      list.appendChild(row);
+    });
   });
 }
 
@@ -802,9 +770,7 @@ function setupHomeInteractions(){
       await resetProgress();
     }
   });
-  document.getElementById('quitBtn').addEventListener('click', ()=>{
-    showHome();
-  });
+  document.getElementById('quitBtn').addEventListener('click', ()=>{ showHome(); });
   const at = document.getElementById('audioToggle');
   if(at){
     audioEnabled = at.checked;
@@ -826,40 +792,25 @@ function weightedPick(pool){
   const weights = pool.map(w=>Math.max(1, 5-levelOf(w)));
   const total = weights.reduce((a,b)=>a+b,0);
   let r = Math.random()*total;
-  for(let i=0;i<pool.length;i++){
-    r -= weights[i];
-    if(r<=0) return pool[i];
-  }
+  for(let i=0;i<pool.length;i++){ r -= weights[i]; if(r<=0) return pool[i]; }
   return pool[pool.length-1];
 }
-
 function weightedPickIndex(arr){
   const weights = arr.map(w=>Math.max(1, 5-levelOf(w)));
   const total = weights.reduce((a,b)=>a+b,0);
   let r = Math.random()*total;
-  for(let i=0;i<arr.length;i++){
-    r -= weights[i];
-    if(r<=0) return i;
-  }
+  for(let i=0;i<arr.length;i++){ r -= weights[i]; if(r<=0) return i; }
   return arr.length-1;
 }
-
 function buildQueue(pool, len){
   const queue=[];
-  // Passe 1 : tirage pondéré SANS remise — chaque mot du pool apparaît au plus
-  // une fois avant qu'aucun ne soit répété. Les mots faibles sortent plus tôt
-  // mais aucun doublon tant que tout le pool n'a pas été vu.
   const remaining = pool.slice();
   while(queue.length < len && remaining.length > 0){
     const idx = weightedPickIndex(remaining);
     queue.push(remaining[idx]);
     remaining.splice(idx,1);
   }
-  // Passe 2 : si la session demandée dépasse la taille du pool, on complète
-  // avec des tirages pondérés AVEC remise (toujours en priorisant les mots faibles).
-  while(queue.length < len){
-    queue.push(weightedPick(pool));
-  }
+  while(queue.length < len){ queue.push(weightedPick(pool)); }
   return queue;
 }
 
@@ -868,7 +819,6 @@ function startSession(){
   errEl.textContent='';
   let pool = [];
   if(selectedLeitner){
-    // ignore categories — pick all words due today
     const today = todayStr();
     pool = VOCAB.filter(w => leitner[w.id] && leitner[w.id].next <= today);
     if(pool.length === 0){
@@ -882,18 +832,10 @@ function startSession(){
   } else {
     const cats = getSelectedCategories();
     if(cats.length===0){ errEl.textContent = 'Choisis au moins une catégorie avant de commencer.'; return; }
-    pool = VOCAB.filter(w=>cats.includes(effectiveCategory(w)));
+    pool = VOCAB.filter(w=>cats.includes(w.cat));
   }
-  // If Leitner daily-review selected, override pool to only words due today
   const len = selectedLeitner ? pool.length : Math.min(selectedLen, pool.length*3 || selectedLen);
-  session = {
-    mode: selectedMode,
-    queue: buildQueue(pool, len),
-    pool: pool,
-    index: 0,
-    ok: 0, ko: 0,
-    total: len
-  };
+  session = { mode: selectedMode, queue: buildQueue(pool, len), pool: pool, index: 0, ok: 0, ko: 0, total: len };
   showPractice();
   renderQuestion();
 }
@@ -910,53 +852,34 @@ function endSession(){
   document.getElementById('pCounter').textContent = 'Terminé';
 }
 
-/* ===================== AFFICHAGE QUESTIONS ===================== */
+/* ===================== QUESTIONS ===================== */
 function renderQuestion(){
   if(session.index >= session.queue.length){ endSession(); return; }
   document.getElementById('pCounter').textContent = `Question ${session.index+1}/${session.total}`;
   document.getElementById('pOk').textContent = session.ok;
   document.getElementById('pKo').textContent = session.ko;
-
   const word = session.queue[session.index];
   const body = document.getElementById('practiceBody');
-
-  if(session.mode === 'recognition'){
-    renderRecognition(word, body);
-  } else if(session.mode === 'meaning'){
-    renderMeaning(word, body);
-  } else {
-    renderRomanize(word, body);
-  }
+  if(session.mode === 'recognition') renderRecognition(word, body);
+  else if(session.mode === 'meaning') renderMeaning(word, body);
+  else renderRomanize(word, body);
 }
 
 function shuffle(arr){
   const a = arr.slice();
-  for(let i=a.length-1;i>0;i--){
-    const j = Math.floor(Math.random()*(i+1));
-    [a[i],a[j]]=[a[j],a[i]];
-  }
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
   return a;
 }
 
 function onAnswer(word, isCorrect){
-  // Update streaks (used for mastery detection)
-  streaks[word.id] = isCorrect ? streakOf(word)+1 : 0;
-
-  // Update Leitner box and next review date
+  streaks[word.id] = isCorrect ? (streaks[word.id]||0)+1 : 0;
   const prevBox = (leitner[word.id] && leitner[word.id].box) || ((progress[word.id]!==undefined) ? (progress[word.id]+1) : 1);
   const newBox = isCorrect ? Math.min(5, prevBox+1) : 1;
   leitner[word.id] = leitner[word.id] || {};
   leitner[word.id].box = newBox;
-  if(newBox === 1){
-    leitner[word.id].next = todayStr();
-  } else {
-    leitner[word.id].next = todayStr(LEITNER_INTERVALS[newBox-1]);
-  }
+  leitner[word.id].next = newBox === 1 ? todayStr() : todayStr(LEITNER_INTERVALS[newBox-1]);
   lastReviewed[word.id] = todayStr();
-
-  // Keep legacy progress mapping for UI compatibility (0-4)
   progress[word.id] = Math.max(0, Math.min(4, newBox-1));
-
   if(isCorrect) session.ok++; else session.ko++;
   saveProgress();
   saveStreaks();
@@ -965,14 +888,13 @@ function onAnswer(word, isCorrect){
 }
 
 function renderRecognition(word, body){
-  const sameCat = shuffle(session.pool.filter(w=>w.id!==word.id && effectiveCategory(w)===effectiveCategory(word)));
+  const sameCat = shuffle(session.pool.filter(w=>w.id!==word.id && w.cat===word.cat));
   let candidates = sameCat;
   if(candidates.length < 3){
-    const others = shuffle(session.pool.filter(w=>w.id!==word.id && effectiveCategory(w)!==effectiveCategory(word)));
+    const others = shuffle(session.pool.filter(w=>w.id!==word.id && w.cat!==word.cat));
     candidates = candidates.concat(others);
   }
-  const distractors = candidates.slice(0,3);
-  const options = shuffle([word, ...distractors]);
+  const options = shuffle([word, ...candidates.slice(0,3)]);
   body.innerHTML = `
     <div class="prompt-card">
       <div class="qlabel">Que veut dire ce mot ?</div>
@@ -984,7 +906,7 @@ function renderRecognition(word, body){
     <button class="next-btn" id="nextBtn">Mot suivant →</button>
   `;
   document.getElementById('audioBtn').addEventListener('click', ()=>speakKorean(word.kr));
-  speakKorean(word.kr); // prononciation automatique à l'apparition
+  speakKorean(word.kr);
   const wrap = document.getElementById('optsWrap');
   options.forEach(opt=>{
     const b = document.createElement('button');
@@ -994,12 +916,9 @@ function renderRecognition(word, body){
       const correct = opt.id === word.id;
       Array.from(wrap.children).forEach(c=>c.disabled=true);
       b.classList.add(correct?'correct':'wrong');
-      if(!correct){
-        Array.from(wrap.children).find(c=>c.textContent===word.fr).classList.add('correct');
-      }
-      const wasGraduated = isGraduated(word);
+      if(!correct) Array.from(wrap.children).find(c=>c.textContent===word.fr).classList.add('correct');
       onAnswer(word, correct);
-      showFeedback(correct, word, null, wasGraduated);
+      showFeedback(correct, word, null);
     });
     wrap.appendChild(b);
   });
@@ -1024,8 +943,7 @@ function renderMeaning(word, body){
     <button class="next-btn" id="nextBtn">Mot suivant →</button>
   `;
   document.getElementById('audioBtn').addEventListener('click', ()=>speakKorean(word.kr));
-  speakKorean(word.kr); // prononciation automatique
-
+  speakKorean(word.kr);
   const input = document.getElementById('ansInput');
   input.focus();
   function validate(){
@@ -1034,9 +952,8 @@ function renderMeaning(word, body){
     const correct = frMatch(given, word.fr);
     input.disabled = true;
     document.getElementById('validateBtn').disabled = true;
-    const wasGraduated = isGraduated(word);
     onAnswer(word, correct);
-    showFeedback(correct, word, given, wasGraduated);
+    showFeedback(correct, word, given);
   }
   document.getElementById('validateBtn').addEventListener('click', validate);
   input.addEventListener('keydown', e=>{ if(e.key==='Enter') validate(); });
@@ -1067,32 +984,30 @@ function renderRomanize(word, body){
     const correct = romanMatch(given, word.kr);
     input.disabled = true;
     document.getElementById('validateBtn').disabled = true;
-    const wasGraduated = isGraduated(word);
     onAnswer(word, correct);
-    showFeedback(correct, word, given, wasGraduated);
-    speakKorean(word.kr); // audio seulement APRÈS la réponse, pour ne pas souffler
+    showFeedback(correct, word, given);
+    speakKorean(word.kr);
   }
   document.getElementById('validateBtn').addEventListener('click', validate);
   input.addEventListener('keydown', e=>{ if(e.key==='Enter') validate(); });
   document.getElementById('nextBtn').addEventListener('click', nextQuestion);
 }
 
-function showFeedback(correct, word, given, wasGraduated){
+function showFeedback(correct, word, given){
   const fb = document.getElementById('fb');
   fb.classList.add('show', correct?'ok':'ko');
   let html;
   if(correct){
     html = `<span class="fans">Correct !</span> <span class="kr">${word.kr}</span> — ${word.fr}`;
   } else {
-    html = `<span class="fans">Pas tout à fait.</span> Réponse attendue : <span class="kr">${word.kr}</span> — ${word.fr}` +
-      (given ? `<br>Ta réponse : <span class="kr">${given||'(vide)'}</span>` : '');
+    html = `<span class="fans">Pas tout à fait.</span> Réponse attendue : <span class="kr">${word.kr}</span> — ${word.fr}`;
+    if(given) html += `<br>Ta réponse : ${given}`;
   }
-  const nowGraduated = isGraduated(word);
-  if(nowGraduated && !wasGraduated){
-    html += `<br><span class="fans">🏆 Mot maîtrisé !</span> Il rejoint la catégorie "Maîtrisé".`;
-  } else if(!nowGraduated){
-    html += `<br><span style="opacity:.75">Série : ${streakOf(word)}/${MASTERY_STREAK} vers la maîtrise</span>`;
-  }
+  const box = leitner[word.id] ? leitner[word.id].box : 1;
+  const next = leitner[word.id] ? leitner[word.id].next : todayStr(1);
+  const daysUntil = Math.max(0, Math.round((new Date(next) - new Date(todayStr())) / 86400000));
+  const when = daysUntil === 0 ? 'demain' : `dans ${daysUntil} j`;
+  html += `<br><span style="opacity:.65;font-size:.82em">Boîte ${box}/5 — revu ${when}</span>`;
   fb.innerHTML = html;
   document.getElementById('nextBtn').classList.add('show');
 }
@@ -1102,7 +1017,7 @@ function nextQuestion(){
   renderQuestion();
 }
 
-/* ===================== NAVIGATION ÉCRANS ===================== */
+/* ===================== NAVIGATION ===================== */
 function showHome(){
   document.getElementById('screen-home').style.display='block';
   document.getElementById('screen-practice').style.display='none';
@@ -1126,24 +1041,28 @@ let listFilterCat = 'all';
 function renderListFilter(){
   const wrap = document.getElementById('listFilter');
   wrap.innerHTML='';
-  const cats = ['all', ...Object.keys(CAT_LABELS)];
-  cats.forEach(cat=>{
+  LIST_FILTERS.forEach(f=>{
     const chip = document.createElement('button');
-    chip.className = 'lf-chip' + (cat===listFilterCat ? ' active' : '');
-    chip.textContent = cat==='all' ? 'Toutes' : CAT_LABELS[cat];
-    chip.addEventListener('click', ()=>{ listFilterCat = cat; renderList(cat); });
+    chip.className = 'lf-chip' + (f.key===listFilterCat ? ' active' : '');
+    chip.textContent = f.label;
+    chip.addEventListener('click', ()=>renderList(f.key));
     wrap.appendChild(chip);
   });
 }
-function renderList(cat){
-  listFilterCat = cat;
+function renderList(filterKey){
+  listFilterCat = filterKey;
   renderListFilter();
   const body = document.getElementById('listBody');
   body.innerHTML = '';
-  // groupe les mots par catégorie effective pour un affichage organisé
-  const cats = cat==='all' ? Object.keys(CAT_LABELS) : [cat];
-  cats.forEach(c=>{
-    const words = VOCAB.filter(w=>effectiveCategory(w)===c);
+  let catsToShow;
+  if(filterKey === 'all'){
+    catsToShow = CAT_GROUPS.flatMap(g=>g.cats);
+  } else {
+    const f = LIST_FILTERS.find(x=>x.key===filterKey);
+    catsToShow = f && f.cats ? f.cats : CAT_GROUPS.flatMap(g=>g.cats);
+  }
+  catsToShow.forEach(c=>{
+    const words = VOCAB.filter(w=>w.cat===c);
     if(words.length===0) return;
     const card = document.createElement('div');
     card.className='card';
@@ -1161,7 +1080,6 @@ function renderList(cat){
     card.innerHTML = html;
     body.appendChild(card);
   });
-  // câble les boutons audio
   body.querySelectorAll('.vt-spk').forEach(btn=>{
     btn.addEventListener('click', ()=>speakKorean(btn.getAttribute('data-kr')));
   });
@@ -1169,7 +1087,6 @@ function renderList(cat){
 
 /* ===================== INIT ===================== */
 async function init(){
-  // load any user-added words first so migration includes them
   await loadUserVocab();
   await loadProgress();
   renderCategories();
@@ -1177,28 +1094,16 @@ async function init(){
   renderOverview();
   initVoices();
 
-  // Autotest walkthrough when opened with ?autotest=1
   try{
     const params = new URL(location.href).searchParams;
     if(params.get('autotest') === '1'){
       const stage = localStorage.getItem('autotest-stage');
       const testId = localStorage.getItem('autotest-id') || ('__AUTOTEST_'+Date.now());
       if(!stage){
-        // create a test word and persist it
-        const testWord = { id: testId, kr: '테스트', fr: 'test (autotest)', cat: 'nouveaux' };
-        if(!VOCAB.find(w=>w.id===testWord.id)){
-          VOCAB.push(testWord);
-          userVocab.push(testWord);
-          await saveUserVocab();
-        }
-        // ensure migration/leitner contains it
-        if(!leitner[testWord.id]){
-          leitner[testWord.id] = { box:1, next: todayStr() };
-          await saveLeitner();
-        }
-        // simulate a correct answer
+        const testWord = { id: testId, kr: '테스트', fr: 'test (autotest)', cat: 'nb-sino' };
+        if(!VOCAB.find(w=>w.id===testWord.id)){ VOCAB.push(testWord); userVocab.push(testWord); await saveUserVocab(); }
+        if(!leitner[testWord.id]){ leitner[testWord.id] = { box:1, next: todayStr() }; await saveLeitner(); }
         onAnswer(testWord, true);
-        // mark stage and reload to verify persistence
         localStorage.setItem('autotest-stage','after-answer');
         localStorage.setItem('autotest-id', testWord.id);
         setTimeout(()=>location.reload(), 600);
@@ -1206,11 +1111,7 @@ async function init(){
         const tid = localStorage.getItem('autotest-id');
         const info = leitner[tid] || null;
         const sEl = document.getElementById('leitnerSummary');
-        if(sEl){
-          if(info) sEl.textContent = `Autotest: mot ${tid} — boîte ${info.box}, prochaine ${info.next}`;
-          else sEl.textContent = 'Autotest: aucune info Leitner trouvée.';
-        }
-        // cleanup autotest markers
+        if(sEl){ sEl.textContent = info ? `Autotest: mot ${tid} — boîte ${info.box}, prochaine ${info.next}` : 'Autotest: aucune info Leitner trouvée.'; }
         localStorage.removeItem('autotest-stage');
         localStorage.removeItem('autotest-id');
       }
