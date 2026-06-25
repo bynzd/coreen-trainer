@@ -561,11 +561,14 @@ function speakKorean(text){
   if(!audioEnabled || !('speechSynthesis' in window)) return;
   try{
     window.speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(text);
-    if(koVoice) u.voice = koVoice;
-    u.lang = 'ko-KR';
-    u.rate = 0.9;
-    window.speechSynthesis.speak(u);
+    // Chrome bug: cancel() must be processed before speak() or rate doubles
+    setTimeout(()=>{
+      const u = new SpeechSynthesisUtterance(text);
+      if(koVoice) u.voice = koVoice;
+      u.lang = 'ko-KR';
+      u.rate = 0.9;
+      window.speechSynthesis.speak(u);
+    }, 50);
   }catch(e){}
 }
 function updateVoiceNotice(){
