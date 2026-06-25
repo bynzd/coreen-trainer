@@ -1,4 +1,4 @@
-const CACHE = 'coreen-v1';
+const CACHE = 'coreen-v3';
 const ASSETS = [
   './',
   './index.html',
