@@ -560,7 +560,6 @@ function initVoices(){
 function speakKorean(text){
   if(!audioEnabled || !('speechSynthesis' in window)) return;
   try{
-    window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     if(koVoice) u.voice = koVoice;
     u.lang = 'ko-KR';
