@@ -560,18 +560,12 @@ function initVoices(){
 function speakKorean(text){
   if(!audioEnabled || !('speechSynthesis' in window)) return;
   try{
+    window.speechSynthesis.cancel();
     const u = new SpeechSynthesisUtterance(text);
     if(koVoice) u.voice = koVoice;
     u.lang = 'ko-KR';
     u.rate = 0.9;
-    if(window.speechSynthesis.speaking || window.speechSynthesis.pending){
-      // Chrome bug: cancel() then immediate speak() plays at double speed.
-      // Build the utterance first, cancel, then delay before speaking.
-      window.speechSynthesis.cancel();
-      setTimeout(()=>window.speechSynthesis.speak(u), 150);
-    } else {
-      window.speechSynthesis.speak(u);
-    }
+    window.speechSynthesis.speak(u);
   }catch(e){}
 }
 function updateVoiceNotice(){
